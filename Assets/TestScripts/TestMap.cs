@@ -30,10 +30,11 @@ using ProjNet.Converters.WellKnownText;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using SimpleJSON;
 
 public class TestMap : MonoBehaviour
 {
-	private Map		map;
+	public Map		map;
 	
 	public Texture	LocationTexture;
 	public Texture	MarkerTexture;
@@ -168,9 +169,9 @@ public class TestMap : MonoBehaviour
 		map = Map.Instance;
 		map.CurrentCamera = Camera.main;
 		map.InputDelegate += UnitySlippyMap.Input.MapInput.BasicTouchAndKeyboard;
-		map.CurrentZoom = 15.0f;
+		map.CurrentZoom = 7.0f;
 		// 9 rue Gentil, Lyon
-		map.CenterWGS84 = new double[2] { 4.83527, 45.76487 };
+		map.CenterWGS84 = new double[2] { 10.0, 56.0 };
 		map.UseLocation = true;
 		map.InputsEnabled = true;
 		map.ShowGUIControls = true;
@@ -276,24 +277,34 @@ public class TestMap : MonoBehaviour
             Debug.LogError("ERROR: MBTiles file not found!");
 
 #endif
-
+		/*
         // create some test 2D markers
 		GameObject go = Tile.CreateTileTemplate(Tile.AnchorPoint.BottomCenter).gameObject;
 		go.renderer.material.mainTexture = MarkerTexture;
 		go.renderer.material.renderQueue = 4001;
 		go.transform.localScale = new Vector3(0.70588235294118f, 1.0f, 1.0f);
 		go.transform.localScale /= 7.0f;
-        go.AddComponent<CameraFacingBillboard>().Axis = Vector3.up;
+        //go.AddComponent<CameraFacingBillboard>().Axis = Vector3.up;
+
 		
 		GameObject markerGO;
-		markerGO = Instantiate(go) as GameObject;
-		map.CreateMarker<Marker>("test marker - 9 rue Gentil, Lyon", new double[2] { 4.83527, 45.76487 }, markerGO);
 
-		markerGO = Instantiate(go) as GameObject;
-		map.CreateMarker<Marker>("test marker - 31 rue de la Bourse, Lyon", new double[2] { 4.83699, 45.76535 }, markerGO);
-		
-		markerGO = Instantiate(go) as GameObject;
-		map.CreateMarker<Marker>("test marker - 1 place St Nizier, Lyon", new double[2] { 4.83295, 45.76468 }, markerGO);
+		TextAsset ships = Resources.Load("vessel_list") as TextAsset;
+		string txt=ships.text;
+		JSONNode shipsJson = JSON.Parse(txt);
+
+
+
+		foreach (var vessel in shipsJson["vesselList"]["vessels"].Childs) {
+
+			var lon = vessel[1].AsDouble;
+			var lat = vessel[2].AsDouble;
+
+			if (lat < 90.0 && lat > -90.0 && lon < 180.0 && lon > -180) {
+				markerGO = Instantiate(go) as GameObject;
+				map.CreateMarker<Marker>(vessel, new double[2] { lat,lon  }, markerGO);
+			}
+		}
 
 		DestroyImmediate(go);
 		
@@ -307,6 +318,8 @@ public class TestMap : MonoBehaviour
 		map.SetLocationMarker<LocationMarker>(markerGO);
 
 		DestroyImmediate(go);
+		*/
+
 	}
 	
 	void OnApplicationQuit()
