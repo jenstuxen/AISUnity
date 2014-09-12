@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using System.Net.HttpWebRequest;
 /*
  * Implements the REST services of AisView (http://github.com/dmadk/AisView) 
  * 
@@ -23,7 +22,8 @@ public class AisViewClient : MonoBehaviour
 
 		TextAsset ping() 
 		{
-			System.Net.HttpWebRequest wb = new System.Net.HttpWebRequest ();
+			return null;
+			//System.Net.HttpWebRequest wb = new System.Net.HttpWebRequest ();
 		}
 }
 
