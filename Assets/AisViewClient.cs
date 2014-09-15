@@ -22,7 +22,7 @@ public class AisViewClient
 		String botLatS = "botLat="+botLat.ToString ("R");
 		String botLonS = "botLon="+botLon.ToString ("R");
 
-		String param = topLatS + "&" + topLon + "&" + botLat + "&" + botLon;
+		String param = topLatS + "&" + topLonS + "&" + botLatS + "&" + botLonS;
 
 		return requestJSON ("/vessel_list?"+param);
 		}
