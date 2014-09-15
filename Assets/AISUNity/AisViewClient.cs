@@ -35,7 +35,8 @@ public class AisViewClient
 	public AisViewClient(String json) 
 	{
 		TextAsset txtA = Resources.Load (json) as TextAsset;
-		JSONNode config = JSON.Parse (txtA.text);
+		string txt = txtA.text;
+		JSONNode config = JSON.Parse (txt);
 
 		BaseUri = new Uri(config ["baseUri"]);
 		Username = config ["username"];

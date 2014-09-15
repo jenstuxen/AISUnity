@@ -55,7 +55,7 @@ public class ShipLoader : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		av = new AisViewClient ();
+		av = new AisViewClient ("aisview");
 
 		map = GameObject.Find("Test").GetComponent<TestMap>().map;
 		// create some test 2D markers
