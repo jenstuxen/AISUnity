@@ -38,7 +38,7 @@ public class ShipLoader : MonoBehaviour {
 
 		JSONNode vessel = enumerator.Current as JSONNode;
 		enumerator.MoveNext();
-	try{
+		try{
 		var lon = vessel[1].AsDouble;
 		var lat = vessel[2].AsDouble;
 		var rot = vessel[0].AsFloat;
@@ -54,7 +54,7 @@ public class ShipLoader : MonoBehaviour {
 		}
 		catch(System.NullReferenceException e)
 		{
-			Debug.Log ("lajshdlskajhd");
+		
 		}
 
 
