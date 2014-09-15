@@ -8,7 +8,6 @@ public class ShipLoader : MonoBehaviour {
 
 	private TextAsset ships;
 	GameObject go;
-	GameObject markgerGO;
 	JSONNode jsonShips;
 	public Map map;
 	public Texture	MarkerTexture;
@@ -42,19 +41,16 @@ public class ShipLoader : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-
 		JSONNode vessel = enumerator.Current as JSONNode;
 		enumerator.MoveNext();
-	
 
-		GameObject markerGO = Instantiate(go) as GameObject;
 		var lon = vessel[1].AsDouble;
 		var lat = vessel[2].AsDouble;
 
-
 		if (lat < 90.0 && lat > -90.0 && lon < 180.0 && lon > -180) {
-			markerGO = Instantiate(go) as GameObject;;
-			map.CreateMarker<Marker>(vessel, new double[2] { lat,lon  }, markerGO);
+			GameObject markerGO = Instantiate(go) as GameObject;
+
+			map.CreateMarker<Marker>("vessel", new double[2] { lat,lon  }, markerGO);
 		}
 
 	}
