@@ -37,3 +37,6 @@ obj/
 # include meta files
 !*.*.meta
 
+
+*.txt
+*.txt.meta
