@@ -18,8 +18,7 @@ public class Ship : Marker {
 		double dX = Mathf.Sin(rotInRad)*speed;
 		double dY = Mathf.Cos(rotInRad)*speed;
 		transform.localEulerAngles = new Vector3(0f, rotation, 0f);
-		double[] newCoordinates = new double[] {dX + CoordinatesEPSG900913[0], dY + CoordinatesEPSG900913[1]};
-		CoordinatesEPSG900913 = newCoordinates;
+		CoordinatesEPSG900913 = new double[] {dX + CoordinatesEPSG900913[0], dY + CoordinatesEPSG900913[1]};
 
 		base.Reposition();
 	

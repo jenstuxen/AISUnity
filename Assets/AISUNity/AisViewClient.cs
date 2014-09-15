@@ -10,9 +10,45 @@ using SimpleJSON;
  */
 public class AisViewClient
 {
-		protected Uri baseUri = new Uri(Environment.GetEnvironmentVariable("AISVIEW_URI"));
-		protected String username = Environment.GetEnvironmentVariable("AISVIEW_USERNAME");
-		protected String password = Environment.GetEnvironmentVariable("AISVIEW_PASSWORD");
+		private Uri baseUri;
+		public Uri BaseUri
+		{
+		get { return baseUri; } 
+		set { baseUri = value; }
+		}
+	
+		private String username;
+		public string Username
+		{
+		get { return username; } 
+		set { username = value; }
+		}
+
+		private String password;
+		public string Password
+		{
+		get { return password; } 
+		set { password = value; }
+		}
+
+
+	public AisViewClient(String json) 
+	{
+		TextAsset txtA = Resources.Load (json) as TextAsset;
+		JSONNode config = JSON.Parse (txtA.text);
+
+		BaseUri = new Uri(config ["baseUri"]);
+		Username = config ["username"];
+		Password = config ["password"];
+
+	}
+
+	public AisViewClient() 
+	{
+		BaseUri = new Uri(Environment.GetEnvironmentVariable("AISVIEW_URI"));
+		Username = Environment.GetEnvironmentVariable ("AISVIEW_USERNAME");
+		Password = Environment.GetEnvironmentVariable("AISVIEW_PASSWORD");
+	}
 		
 
 
@@ -48,7 +84,7 @@ public class AisViewClient
 
 		public string requestString (String name)
 		{
-			Uri uri = new Uri (baseUri, name);
+			Uri uri = new Uri (BaseUri, name);
 			WebRequest wb = request (uri);
 			return requestString (wb);
 		}
@@ -63,7 +99,7 @@ public class AisViewClient
 
 		private void authenticate(WebRequest wb) 
 		{
-			String encoded = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
+			String encoded = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Username + ":" + Password));
 			wb.Headers.Add("Authorization", "Basic " + encoded);
 
 		}
@@ -76,5 +112,6 @@ public class AisViewClient
 			return wb;
 
 		}
+	
 }
 

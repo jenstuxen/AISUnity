@@ -1004,11 +1004,8 @@ public class Map : MonoBehaviour
 	{
 		var OLDMarkers = Markers;
 		Markers = new List<Marker> ();
-
 		foreach (Marker m in OLDMarkers) Destroy (m.gameObject);
-			
 		OLDMarkers.Clear();
-		
 	}
 	
 	// <summary>

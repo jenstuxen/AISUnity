@@ -21,6 +21,8 @@ public class ShipLoader : MonoBehaviour {
 	IEnumerable enumerable;
 	IEnumerator enumerator;
 
+	Coroutine op;
+
 	private Boolean isDirty = true;
 	public Boolean IsDirty
 	{
@@ -42,6 +44,14 @@ public class ShipLoader : MonoBehaviour {
 		set { timePassed = value; } 
 	}
 
+	private Boolean doneSpawning = true;
+	public Boolean DoneSpawning
+	{
+		get { return doneSpawning;}
+		set { doneSpawning = value; }
+	}
+
+
 
 	// Use this for initialization
 	void Start () {
@@ -51,6 +61,7 @@ public class ShipLoader : MonoBehaviour {
 		// create some test 2D markers
 
 		IsDirty = true;
+		DoneSpawning = true;
 		DrawnPos = new double[]{-900,-900};
 
 	}
@@ -59,34 +70,31 @@ public class ShipLoader : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
-		TimePassed += Time.deltaTime;
-
-		if ((Math.Abs (DrawnPos [0] - map.CenterWGS84 [0]) > 0.5 | Math.Abs (DrawnPos [1] - map.CenterWGS84 [1]) > 0.5) & TimePassed > 1)
+		if (IsDirty && DoneSpawning) 
 		{
-			IsDirty = true;
-			TimePassed=0;
-		}
-
-
-		if (IsDirty) 
-		{
+			IsDirty = false;
+			DoneSpawning = false;
+			map.RemoveAllMarkers();
 
 
 			DrawnPos = map.CenterWGS84;
-			Debug.Log(map.CenterWGS84[0]);
-			Debug.Log (map.CenterWGS84[1]);
-			IsDirty = false;
+			//Debug.Log(map.CenterWGS84[0]);
+			//Debug.Log (map.CenterWGS84[1]);
+
+			StartCoroutine("ShipSpawningCoRoutine");
+		}
+
+	}
+
+	IEnumerator ShipSpawningCoRoutine()
+	{
+			Debug.Log("DIRTY");
 			double[] bbox = new double[]{map.CenterWGS84[1]-2.0,map.CenterWGS84[0]-2.0,map.CenterWGS84[1]+2.0,map.CenterWGS84[0]+2.0};
-
-			map.RemoveAllMarkers();
-
-			
-
 			jsonShips = av.vessel_list(bbox[0],bbox[1],bbox[2],bbox[3]);
-
+			yield return null;
+			
 			foreach (JSONNode vessel in jsonShips["vesselList"]["vessels"].Childs)
 			{
-
 				try
 				{
 					var lon = vessel[1].AsDouble;
@@ -94,21 +102,29 @@ public class ShipLoader : MonoBehaviour {
 					var rot = vessel[0].AsFloat;
 					var shipID = vessel[6];
 					if (lat < 90.0 && lat > -90.0 && lon < 180.0 && lon > -180) {
-						Debug.Log("shippppp");
 						GameObject ship = Instantiate(go) as GameObject;
 						Ship newShip = map.CreateMarker<Ship>(shipID, new double[2] { lat,lon  }, ship) as Ship;
 						newShip.speed = 0;
 						newShip.rotation = rot;
 					}
 				}
-				catch(System.NullReferenceException e)
+				catch(System.NullReferenceException )
 				{
 					
 				}
+
+				yield return null;
 			}
 
-		}
+
+			DoneSpawning = true;	
+			Debug.Log ("DIRTY DONE");
+
+	}
 
 
+
+	void OnGUI () {
+		if (Event.current.type == EventType.MouseUp) IsDirty = true;
 	}
 }
