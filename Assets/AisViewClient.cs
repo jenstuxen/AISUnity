@@ -15,19 +15,6 @@ public class AisViewClient
 		protected String password = Environment.GetEnvironmentVariable("AISVIEW_PASSWORD");
 		
 
-		// Use this for initialization
-		void Start ()
-		{
-			if (this.ping ()) {
-			Debug.Log ("pong!");
-			}
-		}
-	
-		// Update is called once per frame
-		void Update ()
-		{
-	
-		}
 
 		public JSONNode vessel_list(float topLat, float topLon, float botLat, float botLon) {
 		String topLatS = "topLat="+topLat.ToString ("R"); 
