@@ -42,3 +42,6 @@ obj/
 *.txt.meta
 *.json
 *.json.meta
+
+
+buildios/
