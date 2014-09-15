@@ -34,7 +34,7 @@ public class Marker : MonoBehaviour
 	// <summary>
 	// The coordinates of the marker in WGS84.
 	// </summary>
-	private double[]	coordinatesWGS84 = new double[2];
+	protected double[]	coordinatesWGS84 = new double[2];
 	public double[]		CoordinatesWGS84
 	{
 		get { return coordinatesWGS84; }
@@ -58,7 +58,7 @@ public class Marker : MonoBehaviour
 	// <summary>
 	// The coordinates of the marker in EPSG 900913.
 	// </summary>
-	private double[]	coordinatesEPSG900913 = new double[2];
+	protected double[]	coordinatesEPSG900913 = new double[2];
 	public double[]		CoordinatesEPSG900913
 	{
 		get { return coordinatesEPSG900913; }
@@ -83,10 +83,11 @@ public class Marker : MonoBehaviour
 	
 	protected void Update()
 	{
-		if (this.gameObject.transform.localScale.x != Map.HalfMapScale)
+		if (this.gameObject.transform.localScale.x != Map.HalfMapScale) 
 			this.gameObject.transform.localScale = new Vector3(Map.HalfMapScale, Map.HalfMapScale, Map.HalfMapScale);
-
+			
 		Reposition();
+
 	}
 	
 	#endregion
@@ -97,10 +98,9 @@ public class Marker : MonoBehaviour
 	// Places the marker to its 'real' position.
 	// When zooming in and out, the marker's position at a specified zoom level in Unity3D shifts and needs to be corrected.
 	// </summary>
-	private void Reposition()
+	protected void Reposition()
 	{
 		double[] offsetEPSG900913 = new double[2] { coordinatesEPSG900913[0] - Map.CenterEPSG900913[0], coordinatesEPSG900913[1] - Map.CenterEPSG900913[1] };
-		
 		double offset = offsetEPSG900913[0];
 		if (offset < 0.0)
 			offset = -offset;

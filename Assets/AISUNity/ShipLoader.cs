@@ -7,7 +7,7 @@ using UnitySlippyMap;
 public class ShipLoader : MonoBehaviour {
 
 	private TextAsset ships;
-	GameObject go;
+	public GameObject go;
 	JSONNode jsonShips;
 	public Map map;
 	public Texture	MarkerTexture;
@@ -22,11 +22,6 @@ public class ShipLoader : MonoBehaviour {
 
 		map = GameObject.Find("Test").GetComponent<TestMap>().map;
 		// create some test 2D markers
-		go = Tile.CreateTileTemplate(Tile.AnchorPoint.BottomCenter).gameObject;
-		go.renderer.material.mainTexture = MarkerTexture;
-		go.renderer.material.renderQueue = 4001;
-		go.transform.localScale = new Vector3(0.70588235294118f, 1.0f, 1.0f);
-		go.transform.localScale /= 7.0f;
 
 		ships = Resources.Load("vessel_list") as TextAsset;
 		string txt=ships.text;
@@ -43,15 +38,26 @@ public class ShipLoader : MonoBehaviour {
 
 		JSONNode vessel = enumerator.Current as JSONNode;
 		enumerator.MoveNext();
-
+	try{
 		var lon = vessel[1].AsDouble;
 		var lat = vessel[2].AsDouble;
-
+		var rot = vessel[0].AsFloat;
+		var shipID = vessel[6];
 		if (lat < 90.0 && lat > -90.0 && lon < 180.0 && lon > -180) {
-			GameObject markerGO = Instantiate(go) as GameObject;
+			GameObject ship = Instantiate(go) as GameObject;
 
-			map.CreateMarker<Marker>("vessel", new double[2] { lat,lon  }, markerGO);
+
+			Ship newShip = map.CreateMarker<Ship>(shipID, new double[2] { lat,lon  }, ship) as Ship;
+			newShip.speed = 1;
+			newShip.rotation = rot;
+			}
 		}
+		catch(System.NullReferenceException e)
+		{
+			Debug.Log ("lajshdlskajhd");
+		}
+
+
 
 	}
 }
