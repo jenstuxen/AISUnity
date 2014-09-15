@@ -479,7 +479,11 @@ public class Map : MonoBehaviour
 	private float							lastCameraOrientation = 0.0f;
 	
     private List<Marker> markers = new List<Marker>();
-    public List<Marker> Markers { get { return markers; } }
+    public List<Marker> Markers 
+	{ 
+			get { return markers; } 
+			set { markers = value; } 
+	}
     
     /// <summary>
     /// Enables/disables showing GUI controls.
@@ -821,7 +825,7 @@ public class Map : MonoBehaviour
 					layer.UpdateContent();
 			}
 			
-			foreach (Marker marker in markers)
+			foreach (Marker marker in Markers)
 			{
 #if UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_3_6 || UNITY_3_7 || UNITY_3_8 || UNITY_3_9
 				if (marker.gameObject.active == true
@@ -962,7 +966,7 @@ public class Map : MonoBehaviour
 		marker.CoordinatesWGS84 = coordinatesWGS84;
 		
 		// add marker to the markers' list
-		markers.Add(marker);
+		Markers.Add(marker);
 		
 		// tell the map to update
 		IsDirty = true;
@@ -988,13 +992,24 @@ public class Map : MonoBehaviour
         if (m == null)
             throw new ArgumentNullException("m");
         
-        if (markers.Contains(m) == false)
+        if (Markers.Contains(m) == false)
             throw new ArgumentOutOfRangeException("m");
         
-        markers.Remove(m);
+        Markers.Remove(m);
         
         DestroyImmediate(m.gameObject);
     }
+
+	public void RemoveAllMarkers() 
+	{
+		var OLDMarkers = Markers;
+		Markers = new List<Marker> ();
+
+		foreach (Marker m in OLDMarkers) Destroy (m.gameObject);
+			
+		OLDMarkers.Clear();
+		
+	}
 	
 	// <summary>
 	// Zooms the map.

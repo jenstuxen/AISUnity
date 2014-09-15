@@ -16,7 +16,7 @@ public class AisViewClient
 		
 
 
-		public JSONNode vessel_list(float topLat, float topLon, float botLat, float botLon) {
+	public JSONNode vessel_list(double topLat, double topLon, double botLat, double botLon) {
 		String topLatS = "topLat="+topLat.ToString ("R"); 
 		String topLonS = "topLon="+topLon.ToString ("R");
 		String botLatS = "botLat="+botLat.ToString ("R");
