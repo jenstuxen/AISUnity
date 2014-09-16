@@ -8,8 +8,9 @@ using System;
 
 
 public class ShipLoader : MonoBehaviour {
-	
-	public GameObject go;
+	public enum shipTypes{UNDEFINED, WIG, PILOT, SAR, TUG, PORT_TENDER, ANTI_POLLUTION, LAW_ENFORCEMENT, MEDICAL, FISHING, TOWING, TOWING_LONG_WIDE, DREDGING, DIVING, MILITARY, SAILING, PLEASURE, HSC, PASSENGER, CARGO, TANKER, SHIPS_ACCORDING_TO_RR, UNKNOWN};
+
+	public GameObject[] gos;
 	public Map map;
 	public Texture	MarkerTexture;
 
@@ -101,8 +102,10 @@ public class ShipLoader : MonoBehaviour {
 					var lat = vessel[2].AsDouble;
 					var rot = vessel[0].AsFloat;
 					var shipID = vessel[6];
+					var shipType = vessel[4].AsInt;
+					Debug.Log(shipType);
 					if (lat < 90.0 && lat > -90.0 && lon < 180.0 && lon > -180) {
-						GameObject ship = Instantiate(go) as GameObject;
+					GameObject ship = Instantiate(gos[shipType]) as GameObject;
 						Ship newShip = map.CreateMarker<Ship>(shipID, new double[2] { lat,lon  }, ship) as Ship;
 						newShip.speed = 0;
 						newShip.rotation = rot;
