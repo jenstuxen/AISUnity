@@ -90,7 +90,7 @@ public class ShipLoader : MonoBehaviour {
 	IEnumerator ShipSpawningCoRoutine()
 	{
 			Debug.Log("DIRTY");
-			double[] bbox = new double[]{map.CenterWGS84[1]-2.0,map.CenterWGS84[0]-2.0,map.CenterWGS84[1]+2.0,map.CenterWGS84[0]+2.0};
+			double[] bbox = new double[]{map.CenterWGS84[1]-1.0,map.CenterWGS84[0]-1.0,map.CenterWGS84[1]+1.0,map.CenterWGS84[0]+1.0};
 			jsonShips = av.vessel_list(bbox[0],bbox[1],bbox[2],bbox[3]);
 			yield return null;
 			
@@ -103,7 +103,6 @@ public class ShipLoader : MonoBehaviour {
 					var rot = vessel[0].AsFloat;
 					var shipID = vessel[6];
 					var shipType = vessel[4].AsInt;
-					Debug.Log(shipType);
 					if (lat < 90.0 && lat > -90.0 && lon < 180.0 && lon > -180) {
 					GameObject ship = Instantiate(gos[shipType]) as GameObject;
 						Ship newShip = map.CreateMarker<Ship>(shipID, new double[2] { lat,lon  }, ship) as Ship;
