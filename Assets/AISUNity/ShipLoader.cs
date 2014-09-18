@@ -112,15 +112,15 @@ public class ShipLoader : MonoBehaviour {
 						    {
 								shipMarker = (Ship) map.Markers[shipID];
 								shipMarker.CoordinatesWGS84 = new double[2] {lat,lon};
-								shipMarker.rotation = rot;
+								shipMarker.Rotation = rot;
 							}
 						}
 						else
 						{
 								GameObject ship = Instantiate(gos[shipType]) as GameObject;
 								shipMarker = map.CreateMarker<Ship>(shipID, new double[2] { lat,lon  }, ship) as Ship;
-								shipMarker.speed = 0;
-								shipMarker.rotation = rot;
+								shipMarker.Speed = 0;
+								shipMarker.Rotation = rot;
 						}
 					}
 				}

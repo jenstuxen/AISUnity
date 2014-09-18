@@ -14,34 +14,35 @@ public class Ship : Marker {
 		
 
 	private float rotation;
-	public float Rotation;
+	public float Rotation
 	{
 		get { return rotation; }
 		set { rotation = value; }
 	}
 
 	private double dimStern;
-	public double DimStern;
+	public double DimStern
 	{
 		get { return dimStern; }
-		set { rotation = value; }
+		set { dimStern = value; }
 	}
 
 	private double dimStarboard;
-	public double DimStarboard;
+	public double DimStarboard
 	{
 		get { return dimStarboard; }
 		set { dimStarboard = value; }
 	}
 
 	private double dimBow;
-	public double DimBow;
+	public double DimBow
 	{
 		get { return dimBow; }
 		set { dimBow = value; }
 	}
 
-	public double DimPort;
+	private double dimPort;
+	public double DimPort
 	{
 		get { return dimPort; }
 		set { dimPort = value; }
@@ -63,7 +64,7 @@ public class Ship : Marker {
 
 	private string imoNo = "N/A";
 
-	private string sourceCountry = "N/A"
+	private string sourceCountry = "N/A";
 
 	
 
