@@ -478,8 +478,8 @@ public class Map : MonoBehaviour
 	
 	private float							lastCameraOrientation = 0.0f;
 	
-    private List<Marker> markers = new List<Marker>();
-    public List<Marker> Markers 
+    private Dictionary<int,Marker> markers = new Dictionary<int,Marker>();
+	public Dictionary<int,Marker> Markers
 	{ 
 			get { return markers; } 
 			set { markers = value; } 
@@ -825,7 +825,7 @@ public class Map : MonoBehaviour
 					layer.UpdateContent();
 			}
 			
-			foreach (Marker marker in Markers)
+			foreach (Marker marker in Markers.Values)
 			{
 #if UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_3_6 || UNITY_3_7 || UNITY_3_8 || UNITY_3_9
 				if (marker.gameObject.active == true
@@ -949,10 +949,10 @@ public class Map : MonoBehaviour
 	// <summary>
 	// Creates a new named marker at the specified coordinates using a GameObject for display.
 	// </summary>
-	public T CreateMarker<T>(string name, double[] coordinatesWGS84, GameObject go) where T : Marker
+	public T CreateMarker<T>(int id, double[] coordinatesWGS84, GameObject go) where T : Marker
 	{
 		// create a GameObject and add the templated Marker component to it
-        GameObject markerObject = new GameObject(name);
+        GameObject markerObject = new GameObject(id.ToString());
 		markerObject.transform.parent = this.gameObject.transform;
 		
 		//go.name = "go - " + name;
@@ -966,7 +966,7 @@ public class Map : MonoBehaviour
 		marker.CoordinatesWGS84 = coordinatesWGS84;
 		
 		// add marker to the markers' list
-		Markers.Add(marker);
+		Markers.Add(id,marker);
 		
 		// tell the map to update
 		IsDirty = true;
@@ -987,24 +987,24 @@ public class Map : MonoBehaviour
     /// Is thrown when an argument passed to a method is invalid because it is outside the allowable range of values as
     /// specified by the method.
     /// </exception>
-    public void RemoveMarker(Marker m)
+    public void RemoveMarker(int id)
     {
-        if (m == null)
-            throw new ArgumentNullException("m");
+        if (id == null)
+            throw new ArgumentNullException("id");
         
-        if (Markers.Contains(m) == false)
-            throw new ArgumentOutOfRangeException("m");
+        if (Markers.ContainsKey(id) == false)
+            throw new ArgumentOutOfRangeException("id");
         
-        Markers.Remove(m);
+        Markers.Remove(id);
         
-        DestroyImmediate(m.gameObject);
+        DestroyImmediate(Markers[id].gameObject);
     }
 
 	public void RemoveAllMarkers() 
 	{
 		var OLDMarkers = Markers;
-		Markers = new List<Marker> ();
-		foreach (Marker m in OLDMarkers) Destroy (m.gameObject);
+		Markers = new Dictionary<int,Marker> ();
+		foreach (Marker m in OLDMarkers.Values) Destroy (m.gameObject);
 		OLDMarkers.Clear();
 	}
 	

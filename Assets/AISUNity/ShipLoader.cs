@@ -75,8 +75,6 @@ public class ShipLoader : MonoBehaviour {
 		{
 			IsDirty = false;
 			DoneSpawning = false;
-			map.RemoveAllMarkers();
-
 
 			DrawnPos = map.CenterWGS84;
 			//Debug.Log(map.CenterWGS84[0]);
@@ -89,11 +87,13 @@ public class ShipLoader : MonoBehaviour {
 
 	IEnumerator ShipSpawningCoRoutine()
 	{
-			Debug.Log("DIRTY");
-			double[] bbox = new double[]{map.CenterWGS84[1]-1.0,map.CenterWGS84[0]-1.0,map.CenterWGS84[1]+1.0,map.CenterWGS84[0]+1.0};
+			
+			double[] bbox = new double[]{map.CenterWGS84[1]-.25,map.CenterWGS84[0]-.25,map.CenterWGS84[1]+.25,map.CenterWGS84[0]+.25};
+			Debug.Log("BBOX WEB START   "+bbox[0]+" "+bbox[1]+" "+bbox[2]+" "+bbox[3]);
 			jsonShips = av.vessel_list(bbox[0],bbox[1],bbox[2],bbox[3]);
 			yield return null;
-			
+			Debug.Log("BBOX WEB END     "+bbox[0]+" "+bbox[1]+" "+bbox[2]+" "+bbox[3]);
+			Debug.Log("BBOX SPAWN START "+bbox[0]+" "+bbox[1]+" "+bbox[2]+" "+bbox[3]);
 			foreach (JSONNode vessel in jsonShips["vesselList"]["vessels"].Childs)
 			{
 				try
@@ -101,13 +101,27 @@ public class ShipLoader : MonoBehaviour {
 					var lon = vessel[1].AsDouble;
 					var lat = vessel[2].AsDouble;
 					var rot = vessel[0].AsFloat;
-					var shipID = vessel[6];
+					int shipID = vessel[6].AsInt;
 					var shipType = vessel[4].AsInt;
 					if (lat < 90.0 && lat > -90.0 && lon < 180.0 && lon > -180) {
-					GameObject ship = Instantiate(gos[shipType]) as GameObject;
-						Ship newShip = map.CreateMarker<Ship>(shipID, new double[2] { lat,lon  }, ship) as Ship;
-						newShip.speed = 0;
-						newShip.rotation = rot;
+						Ship shipMarker = null;
+						if (map.Markers.ContainsKey(shipID))
+						{
+							Marker m = map.Markers[shipID];
+							if (m.GetType().IsAssignableFrom(shipMarker.GetType()))
+						    {
+								shipMarker = (Ship) map.Markers[shipID];
+								shipMarker.CoordinatesWGS84 = new double[2] {lat,lon};
+								shipMarker.rotation = rot;
+							}
+						}
+						else
+						{
+								GameObject ship = Instantiate(gos[shipType]) as GameObject;
+								shipMarker = map.CreateMarker<Ship>(shipID, new double[2] { lat,lon  }, ship) as Ship;
+								shipMarker.speed = 0;
+								shipMarker.rotation = rot;
+						}
 					}
 				}
 				catch(System.NullReferenceException )
@@ -117,11 +131,18 @@ public class ShipLoader : MonoBehaviour {
 
 				yield return null;
 			}
-
+			Debug.Log("BBOX SPAWN END  "+bbox[0]+" "+bbox[1]+" "+bbox[2]+" "+bbox[3]);
+			Debug.Log ("SHIPS: " + map.Markers.Count);
 
 			DoneSpawning = true;	
-			Debug.Log ("DIRTY DONE");
+			
 
+	}
+
+	IEnumerator ShipStreamReader()
+	{
+		//to be implemented
+		return null;
 	}
 
 

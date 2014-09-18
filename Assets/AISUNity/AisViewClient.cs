@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System.Net;
 using System;
 using System.IO;
@@ -50,10 +51,42 @@ public class AisViewClient
 		Username = Environment.GetEnvironmentVariable ("AISVIEW_USERNAME");
 		Password = Environment.GetEnvironmentVariable("AISVIEW_PASSWORD");
 	}
+
+	public IEnumerable<JSONNode> stream(String parameters)
+	{
 		
+		Uri uri = new Uri (BaseUri, "/stream/json/?"+parameters);
+		WebRequest wb = request (uri);
 
+		WebResponse wr = wb.GetResponse ();
+		
+		StreamReader reader = new StreamReader (wr.GetResponseStream());
 
-	public JSONNode vessel_list(double topLat, double topLon, double botLat, double botLon) {
+		while (!reader.EndOfStream) 
+		{
+			JSONNode json = JSON.Parse(reader.ReadLine());
+			yield return json;
+		}
+
+		reader.Close ();
+		wr.Close();
+	}
+
+	public IEnumerable<JSONNode> stream(double topLat, double topLon, double botLat, double botLon)
+	{
+		String parameters = "box=" + topLat + "," + topLon + "," + botLat + "," + botLon;
+
+		return stream (parameters);
+	}
+
+	public JSONNode vessel_target_details(int mmsi) 
+	{
+		String details = requestString ("/vessel_target_details?id=" + mmsi);
+		return JSON.Parse (details);
+	}
+
+	public JSONNode vessel_list(double topLat, double topLon, double botLat, double botLon) 
+	{
 		String topLatS = "topLat="+topLat.ToString ("R"); 
 		String topLonS = "topLon="+topLon.ToString ("R");
 		String botLatS = "botLat="+botLat.ToString ("R");
