@@ -13,8 +13,8 @@ public class Ship : Marker {
 	}
 		
 
-	private float rotation;
-	public float Rotation
+	private double rotation;
+	public double Rotation
 	{
 		get { return rotation; }
 		set { rotation = value; }
@@ -48,11 +48,11 @@ public class Ship : Marker {
 		set { dimPort = value; }
 	}
 
-	private string name = "N/A";
-	public string Name
+	private string shipName = "N/A";
+	public string ShipName
 	{
-		get { return name; }
-		set { name = value; }
+		get { return shipName; }
+		set { shipName = value; }
 
 	}
 
@@ -73,12 +73,12 @@ public class Ship : Marker {
 		this.gameObject.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
 	}
 	// Update is called once per frame
-	void Update () {
-		float rotInRad = rotation*Mathf.Deg2Rad;
+	new void Update () {
+		float rotInRad = (float)rotation*Mathf.Deg2Rad;
 		
 		double dX = Mathf.Sin(rotInRad)*speed;
 		double dY = Mathf.Cos(rotInRad)*speed;
-		transform.localEulerAngles = new Vector3(0f, rotation, 0f);
+		transform.localEulerAngles = new Vector3(0f, (float)rotation, 0f);
 		CoordinatesEPSG900913 = new double[] {dX + CoordinatesEPSG900913[0], dY + CoordinatesEPSG900913[1]};
 
 		base.Reposition();

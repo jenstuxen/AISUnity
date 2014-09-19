@@ -11,27 +11,34 @@ using SimpleJSON;
  */
 public class AisViewClient
 {
-		private Uri baseUri;
-		public Uri BaseUri
-		{
-		get { return baseUri; } 
-		set { baseUri = value; }
-		}
-	
-		private String username;
-		public string Username
-		{
-		get { return username; } 
-		set { username = value; }
-		}
+	private Uri baseUri;
+	public Uri BaseUri
+	{
+	get { return baseUri; } 
+	set { baseUri = value; }
+	}
 
-		private String password;
-		public string Password
-		{
-		get { return password; } 
-		set { password = value; }
-		}
+	private String username;
+	public string Username
+	{
+	get { return username; } 
+	set { username = value; }
+	}
 
+	private String password;
+	public string Password
+	{
+	get { return password; } 
+	set { password = value; }
+	}
+
+
+	private List<WebRequest> connections = new List<WebRequest>();
+	public List<WebRequest> Connections
+	{
+	get { return connections; } 
+	set { connections = value; }
+	}
 
 	public AisViewClient(String json) 
 	{
@@ -50,42 +57,94 @@ public class AisViewClient
 		BaseUri = new Uri(Environment.GetEnvironmentVariable("AISVIEW_URI"));
 		Username = Environment.GetEnvironmentVariable ("AISVIEW_USERNAME");
 		Password = Environment.GetEnvironmentVariable("AISVIEW_PASSWORD");
+
 	}
 
-	public IEnumerable<JSONNode> stream(String parameters)
+	public IEnumerable<JSONNode> Stream(String parameters)
 	{
 		
-		Uri uri = new Uri (BaseUri, "/stream/json/?"+parameters);
+		Uri uri = new Uri (BaseUri, "/stream/json/"+parameters);
 		WebRequest wb = request (uri);
+
+		Connections.Add (wb);
 
 		WebResponse wr = wb.GetResponse ();
 		
 		StreamReader reader = new StreamReader (wr.GetResponseStream());
 
+
+
 		while (!reader.EndOfStream) 
 		{
-			JSONNode json = JSON.Parse(reader.ReadLine());
+			JSONNode json = null;
+
+			try
+			{
+				json = JSON.Parse(reader.ReadLine());
+			}
+			catch (Exception e)
+			{
+				Debug.Log("ERROR IN JSON ARRAY");
+				Debug.Log(e.Message);
+			}
+
 			yield return json;
 		}
 
 		reader.Close ();
 		wr.Close();
+		Debug.Log ("/stream closed");
 	}
 
-	public IEnumerable<JSONNode> stream(double topLat, double topLon, double botLat, double botLon)
+	public void terminateConnections()
 	{
-		String parameters = "box=" + topLat + "," + topLon + "," + botLat + "," + botLon;
+		List<WebRequest> all = Connections;
+		Connections = new List<WebRequest> ();
+		foreach(WebRequest con in all)
+		{
 
-		return stream (parameters);
+			con.GetResponse().GetResponseStream().Close();
+			con.GetResponse().Close();
+
+		}
+		all.Clear ();
+
+		Debug.Log ("closed all connections");
 	}
 
-	public JSONNode vessel_target_details(int mmsi) 
+
+	public IEnumerable<JSONNode> Stream(double[] bbox)
+	{
+		return Stream (bbox [0], bbox [1], bbox [2], bbox [3]);
+	}
+
+
+	public IEnumerable<JSONNode> Stream(double topLat, double topLon, double botLat, double botLon)
+	{
+		string parameters = "?filter=t.pos within bbox(" + topLat + "," + topLon + "," + botLat + "," + botLon+")";
+
+		return Stream (parameters);
+	}
+
+	public JSONNode Vessel_target_details(int mmsi) 
 	{
 		String details = requestString ("/vessel_target_details?id=" + mmsi);
 		return JSON.Parse (details);
 	}
 
-	public JSONNode vessel_list(double topLat, double topLon, double botLat, double botLon) 
+
+	public JSONNode Packets(string parameters) {
+		return requestJSON ("/packets" + parameters);
+	}
+
+	public JSONNode packets(double topLat, double topLon, double botLat, double botLon) {
+		string parameters = "?box=" + topLat + "," + topLon + "," + botLat + "," + botLon;
+		return Packets (parameters);
+	}
+
+
+
+	public JSONNode Vessel_list(double topLat, double topLon, double botLat, double botLon) 
 	{
 		String topLatS = "topLat="+topLat.ToString ("R"); 
 		String topLonS = "topLon="+topLon.ToString ("R");

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using SimpleJSON;
 using UnitySlippyMap;
 using System;
@@ -12,15 +13,26 @@ public class ShipLoader : MonoBehaviour {
 
 	public GameObject[] gos;
 	public Map map;
+
 	public Texture	MarkerTexture;
+	public GameObject go;
+
+	private int packetCount = -1;
+	public int PacketCount
+	{
+		get { return packetCount; }
+	}
 
 
-	JSONNode jsonShips;
 	AisViewClient av;
 	//private TestMap testMap
-
-	IEnumerable enumerable;
-	IEnumerator enumerator;
+	
+	IEnumerator<JSONNode> enumerator;
+	public IEnumerator<JSONNode> Enumerator
+	{
+		get { return enumerator; }
+		set { enumerator = value; }
+	}
 
 	Coroutine op;
 
@@ -61,9 +73,10 @@ public class ShipLoader : MonoBehaviour {
 		map = GameObject.Find("Test").GetComponent<TestMap>().map;
 		// create some test 2D markers
 
-		IsDirty = true;
+		IsDirty = false;
 		DoneSpawning = true;
 		DrawnPos = new double[]{-900,-900};
+		StartCoroutine("ShipSpawningCoRoutine");
 
 	}
 	
@@ -71,72 +84,101 @@ public class ShipLoader : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
-		if (IsDirty && DoneSpawning) 
+		if (IsDirty) 
 		{
 			IsDirty = false;
-			DoneSpawning = false;
+
 
 			DrawnPos = map.CenterWGS84;
 			//Debug.Log(map.CenterWGS84[0]);
 			//Debug.Log (map.CenterWGS84[1]);
 
 			StartCoroutine("ShipSpawningCoRoutine");
+
 		}
 
+		if (Enumerator.MoveNext()) 
+		{
+			Interlocked.Increment(ref packetCount);
+			JSONNode vessel = Enumerator.Current;
+			
+			
+			int mmsi = -9999;
+			Double lon = -9999;
+			Double lat = -9999;	
+			Double rot = -9999;
+			string shipType = "N/A";
+			
+			try 
+			{
+				mmsi = vessel ["mmsi"].AsInt;
+				lon = vessel["lon"].AsDouble;
+				lat = vessel["lat"].AsDouble;
+				rot = vessel["cog"].AsDouble/1000.0;
+				shipType = vessel["shipType"];
+			} 
+			catch (System.NullReferenceException) 
+			{
+				
+			}
+			
+			if (lat < 90.0 & lat > -90.0 & lon < 180.0 & lon > -180)
+			{
+				Ship shipMarker = null;
+				if (map.Markers.ContainsKey(mmsi))
+				{
+					try 
+					{
+						shipMarker = (Ship) map.Markers[mmsi];
+						shipMarker.CoordinatesWGS84 = new double[2] {lon,lat};
+						shipMarker.Rotation = rot;
+
+					} catch (System.NullReferenceException)
+					{
+					}
+				}
+				else
+				{	
+					//disabled while I test the stability of the packet stream
+					//GameObject ship = Instantiate(gos[1]) as GameObject;
+					GameObject ship = GameObject.CreatePrimitive(PrimitiveType.Cube);
+					//ship.AddComponent<Rigidbody>();
+
+					shipMarker = map.CreateMarker<Ship>(mmsi, new double[2] { lon,lat  }, ship) as Ship;
+					shipMarker.Speed = 0;
+					shipMarker.Rotation = rot;
+
+
+
+				}
+			}
+		}
+
+		if (PacketCount % 1 == 0) 
+		{
+			Debug.Log("Total Packets: "+PacketCount+" Vessels: "+map.Markers.Keys.Count);
+
+			//if (map.Markers.Keys.Count > 100) {
+			//	map.RemoveAllMarkers();
+			//}
+		}
 	}
+
+
+
+
 
 	IEnumerator ShipSpawningCoRoutine()
 	{
-			
-			double[] bbox = new double[]{map.CenterWGS84[1]-.25,map.CenterWGS84[0]-.25,map.CenterWGS84[1]+.25,map.CenterWGS84[0]+.25};
-			Debug.Log("BBOX WEB START   "+bbox[0]+" "+bbox[1]+" "+bbox[2]+" "+bbox[3]);
-			jsonShips = av.vessel_list(bbox[0],bbox[1],bbox[2],bbox[3]);
-			yield return null;
-			Debug.Log("BBOX WEB END     "+bbox[0]+" "+bbox[1]+" "+bbox[2]+" "+bbox[3]);
-			Debug.Log("BBOX SPAWN START "+bbox[0]+" "+bbox[1]+" "+bbox[2]+" "+bbox[3]);
-			foreach (JSONNode vessel in jsonShips["vesselList"]["vessels"].Childs)
-			{
-				try
-				{
-					var lon = vessel[1].AsDouble;
-					var lat = vessel[2].AsDouble;
-					var rot = vessel[0].AsFloat;
-					int shipID = vessel[6].AsInt;
-					var shipType = vessel[4].AsInt;
-					if (lat < 90.0 && lat > -90.0 && lon < 180.0 && lon > -180) {
-						Ship shipMarker = null;
-						if (map.Markers.ContainsKey(shipID))
-						{
-							Marker m = map.Markers[shipID];
-							if (m.GetType().IsAssignableFrom(shipMarker.GetType()))
-						    {
-								shipMarker = (Ship) map.Markers[shipID];
-								shipMarker.CoordinatesWGS84 = new double[2] {lat,lon};
-								shipMarker.Rotation = rot;
-							}
-						}
-						else
-						{
-								GameObject ship = Instantiate(gos[shipType]) as GameObject;
-								shipMarker = map.CreateMarker<Ship>(shipID, new double[2] { lat,lon  }, ship) as Ship;
-								shipMarker.Speed = 0;
-								shipMarker.Rotation = rot;
-						}
-					}
-				}
-				catch(System.NullReferenceException )
-				{
-					
-				}
+		av.terminateConnections();
+		double[] bbox = new double[]{map.CenterWGS84[1]-.5,map.CenterWGS84[0]-.5,map.CenterWGS84[1]+.5,map.CenterWGS84[0]+.5};
+		IEnumerable<JSONNode> stream = av.Stream (bbox);
+		IEnumerator<JSONNode> newEnumerator = stream.GetEnumerator ();
+		Enumerator = newEnumerator;
 
-				yield return null;
-			}
-			Debug.Log("BBOX SPAWN END  "+bbox[0]+" "+bbox[1]+" "+bbox[2]+" "+bbox[3]);
-			Debug.Log ("SHIPS: " + map.Markers.Count);
+		JSONNode last = Enumerator.Current;
 
-			DoneSpawning = true;	
-			
-
+		yield return null;
 	}
 
 	IEnumerator ShipStreamReader()
