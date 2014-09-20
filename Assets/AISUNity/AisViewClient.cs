@@ -32,13 +32,22 @@ public class AisViewClient
 	set { password = value; }
 	}
 
-
-	private List<WebRequest> connections = new List<WebRequest>();
-	public List<WebRequest> Connections
+	private List<WebResponse> connections = new List<WebResponse>();
+	public List<WebResponse> Connections
 	{
 	get { return connections; } 
 	set { connections = value; }
 	}
+	
+
+
+	private IEnumerator<JSONNode> latest;
+	public IEnumerator<JSONNode> Latest
+	{
+		get { return latest; } 
+		set { latest = value; }
+	}
+
 
 	public AisViewClient(String json) 
 	{
@@ -60,20 +69,17 @@ public class AisViewClient
 
 	}
 
-	public IEnumerable<JSONNode> Stream(String parameters)
+	public IEnumerator<JSONNode> Stream(String parameters)
 	{
-		
+		Debug.Log ("Starting new Web Request");
 		Uri uri = new Uri (BaseUri, "/stream/json/"+parameters);
 		WebRequest wb = request (uri);
-
-		Connections.Add (wb);
+		wb.Timeout = 1000;
 
 		WebResponse wr = wb.GetResponse ();
+		Connections.Add (wr);
 		
 		StreamReader reader = new StreamReader (wr.GetResponseStream());
-
-
-
 		while (!reader.EndOfStream) 
 		{
 			JSONNode json = null;
@@ -86,25 +92,30 @@ public class AisViewClient
 			{
 				Debug.Log("ERROR IN JSON ARRAY");
 				Debug.Log(e.Message);
-			}
-
+			} 
 			yield return json;
 		}
 
-		reader.Close ();
-		wr.Close();
-		Debug.Log ("/stream closed");
+		Debug.Log("/stream loop ended");
+		yield return null;
 	}
 
 	public void terminateConnections()
 	{
-		List<WebRequest> all = Connections;
-		Connections = new List<WebRequest> ();
-		foreach(WebRequest con in all)
+		List<WebResponse> all = Connections;
+		Connections = new List<WebResponse> ();
+		foreach(WebResponse con in all)
 		{
 
-			con.GetResponse().GetResponseStream().Close();
-			con.GetResponse().Close();
+			try {
+				con.GetResponseStream().Close();
+				con.Close();
+				
+			} 
+			catch (ObjectDisposedException)
+			{
+				Debug.Log("already disposed exception");
+			}
 
 		}
 		all.Clear ();
@@ -113,25 +124,18 @@ public class AisViewClient
 	}
 
 
-	public IEnumerable<JSONNode> Stream(double[] bbox)
+	public IEnumerator<JSONNode> Stream(double[] bbox)
 	{
 		return Stream (bbox [0], bbox [1], bbox [2], bbox [3]);
 	}
 
 
-	public IEnumerable<JSONNode> Stream(double topLat, double topLon, double botLat, double botLon)
+	public IEnumerator<JSONNode> Stream(double topLat, double topLon, double botLat, double botLon)
 	{
 		string parameters = "?filter=t.pos within bbox(" + topLat + "," + topLon + "," + botLat + "," + botLon+")";
 
 		return Stream (parameters);
 	}
-
-	public JSONNode Vessel_target_details(int mmsi) 
-	{
-		String details = requestString ("/vessel_target_details?id=" + mmsi);
-		return JSON.Parse (details);
-	}
-
 
 	public JSONNode Packets(string parameters) {
 		return requestJSON ("/packets" + parameters);
@@ -142,69 +146,51 @@ public class AisViewClient
 		return Packets (parameters);
 	}
 
-
-
-	public JSONNode Vessel_list(double topLat, double topLon, double botLat, double botLon) 
+	public Boolean ping() 
 	{
-		String topLatS = "topLat="+topLat.ToString ("R"); 
-		String topLonS = "topLon="+topLon.ToString ("R");
-		String botLatS = "botLat="+botLat.ToString ("R");
-		String botLonS = "botLon="+botLon.ToString ("R");
+		return requestString("/ping").Contains("pong");
+	}
 
-		String param = topLatS + "&" + topLonS + "&" + botLatS + "&" + botLonS;
+	public string requestString (WebRequest wb)
+	{
+		WebResponse webResponse = wb.GetResponse ();
+		StreamReader reader = new StreamReader (webResponse.GetResponseStream ());
+		string response = reader.ReadToEnd ();
+		reader.Close ();
+		webResponse.Close ();
+		return response;
+	}
 
-		return requestJSON ("/vessel_list?"+param);
-		}
+	public string requestString (String name)
+	{
+		Uri uri = new Uri (BaseUri, name);
+		WebRequest wb = request (uri);
+		return requestString (wb);
+	}
 
-		public JSONNode vessel_list() {
-		return requestJSON ("/vessel_list");
-		}
+	public JSONNode requestJSON(String name)
+	{
+		string data = requestString (name);
+		JSONNode jsonData = JSON.Parse(data);
+		return jsonData;
+	}
+	
 
-		public Boolean ping() 
-		{
-			return requestString("/ping").Contains("pong");
-		}
+	private void authenticate(WebRequest wb) 
+	{
+		String encoded = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Username + ":" + Password));
+		wb.Headers.Add("Authorization", "Basic " + encoded);
 
-		public string requestString (WebRequest wb)
-		{
-			WebResponse webResponse = wb.GetResponse ();
-			StreamReader reader = new StreamReader (webResponse.GetResponseStream ());
-			string response = reader.ReadToEnd ();
-			reader.Close ();
-			webResponse.Close ();
-			return response;
-		}
+	}
 
-		public string requestString (String name)
-		{
-			Uri uri = new Uri (BaseUri, name);
-			WebRequest wb = request (uri);
-			return requestString (wb);
-		}
+	private WebRequest request(Uri uri)
+	{
+		ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+		WebRequest wb = WebRequest.Create(uri);
+		authenticate (wb);
+		return wb;
 
-		public JSONNode requestJSON(String name)
-		{
-			string data = requestString (name);
-			JSONNode jsonData = JSON.Parse(data);
-			return jsonData;
-		}
-		
-
-		private void authenticate(WebRequest wb) 
-		{
-			String encoded = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Username + ":" + Password));
-			wb.Headers.Add("Authorization", "Basic " + encoded);
-
-		}
-
-		private WebRequest request(Uri uri)
-		{
-			ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-			WebRequest wb = WebRequest.Create(uri);
-			authenticate (wb);
-			return wb;
-
-		}
+	}
 	
 }
 
