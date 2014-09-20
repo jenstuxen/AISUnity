@@ -94,7 +94,7 @@ public class ShipLoader : MonoBehaviour {
 				if (av.Latest !=null && av.Latest.MoveNext ())
 				{
 					Latest = av.Latest.Current;
-					
+					//Debug.Log("changing latest");
 				}
 	
 			}
@@ -203,11 +203,16 @@ public class ShipLoader : MonoBehaviour {
 		double[] bbox = new double[]{map.CenterWGS84[1]-0.25,map.CenterWGS84[0]-0.25,map.CenterWGS84[1]+0.25,map.CenterWGS84[0]+0.25};
 
 		Thread b = new Thread (() => {
-						Debug.Log("New Thread Started");
-						av.Latest = av.Stream (bbox);
-						while (true)
-								Thread.Sleep (1);
-				});
+				Debug.Log ("New Thread Started");
+				IEnumerator<JSONNode> myEnumerator = av.Stream (bbox);
+				av.Latest = myEnumerator;
+
+				while(true) {
+					Thread.Sleep(1000);
+				}
+
+				Debug.Log("DECOMISSIONING Thread");
+		});
 
 		b.Start ();
 		

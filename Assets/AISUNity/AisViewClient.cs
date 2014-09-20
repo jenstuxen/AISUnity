@@ -72,9 +72,10 @@ public class AisViewClient
 	public IEnumerator<JSONNode> Stream(String parameters)
 	{
 		Debug.Log ("Starting new Web Request");
+		terminateConnections ();
 		Uri uri = new Uri (BaseUri, "/stream/json/"+parameters);
 		WebRequest wb = request (uri);
-		wb.Timeout = 1000;
+		wb.Timeout = 5000;
 
 		WebResponse wr = wb.GetResponse ();
 		Connections.Add (wr);
@@ -82,10 +83,13 @@ public class AisViewClient
 		StreamReader reader = new StreamReader (wr.GetResponseStream());
 		while (!reader.EndOfStream) 
 		{
+			Debug.Log ("reading packet");
+
 			JSONNode json = null;
 
 			try
 			{
+
 				json = JSON.Parse(reader.ReadLine());
 			}
 			catch (Exception e)
