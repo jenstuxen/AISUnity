@@ -953,6 +953,7 @@ public class Map : MonoBehaviour
 	{
 		// create a GameObject and add the templated Marker component to it
         GameObject markerObject = new GameObject(id.ToString());
+
 		markerObject.transform.parent = this.gameObject.transform;
 		
 		//go.name = "go - " + name;

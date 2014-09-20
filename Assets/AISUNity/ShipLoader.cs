@@ -187,6 +187,7 @@ public class ShipLoader : MonoBehaviour {
 				//disabled while I test the stability of the packet stream
 				//GameObject ship = Instantiate(gos[1]) as GameObject;
 				GameObject ship = GameObject.CreatePrimitive(PrimitiveType.Cube);
+
 				//ship.AddComponent<Rigidbody>();
 				
 				shipMarker = map.CreateMarker<Ship>(mmsi, new double[2] { lon,lat  }, ship) as Ship;
@@ -203,15 +204,16 @@ public class ShipLoader : MonoBehaviour {
 		double[] bbox = new double[]{map.CenterWGS84[1]-0.25,map.CenterWGS84[0]-0.25,map.CenterWGS84[1]+0.25,map.CenterWGS84[0]+0.25};
 
 		Thread b = new Thread (() => {
-				Debug.Log ("New Thread Started");
+				Debug.Log ("New Thread Started "+bbox[0]);
 				IEnumerator<JSONNode> myEnumerator = av.Stream (bbox);
 				av.Latest = myEnumerator;
 
 				while(true) {
 					Thread.Sleep(1000);
+					if (!myEnumerator.Equals (av.Latest)) break;
 				}
 
-				Debug.Log("DECOMISSIONING Thread");
+				Debug.Log("DECOMISSIONING Thread "+bbox[0]);
 		});
 
 		b.Start ();
