@@ -13,21 +13,21 @@ public class Ship : Marker {
 	}
 		
 
-	private double cog;
+	private double cog = -1;
 	public double Cog
 	{
 		get { return cog; }
 		set { cog = value; }
 	}
 
-	private double sog;
+	private double sog = -1;
 	public double Sog
 	{
 		get { return sog; }
 		set { sog = value; }
 	}
 
-	private int trueHeading = 0;
+	private int trueHeading = -1;
 	public int TrueHeading
 	{
 		get { return trueHeading; }
@@ -63,7 +63,7 @@ public class Ship : Marker {
 		set { dimPort = value; }
 	}
 
-	private string shipName = "N/A";
+	public string shipName = "N/A";
 	public string ShipName
 	{
 		get { return shipName; }
@@ -129,23 +129,26 @@ public class Ship : Marker {
 	}
 	// Update is called once per frame
 	new void Update () {
-		float rotInRad = (float)TrueHeading*Mathf.Deg2Rad;
+		float rotInRad = (float)Cog*Mathf.Deg2Rad;
 
 		double dX = 0;
 		double dY = 0;
 
-		if (sog > 0) {
+		if (Sog > 0 && Cog > -1) {
 			Debug.Log("SOG IT!");
-			dX = Mathf.Sin(rotInRad)*(sog*0.51)/Map.MetersPerPixel;
-			dY = Mathf.Cos(rotInRad)*(sog*0.51)/Map.MetersPerPixel;
+
+			//this is not enough but should give a "relative" speed
+			dX = Mathf.Sin(rotInRad)*(sog*0.51);
+			dY = Mathf.Cos(rotInRad)*(sog*0.51);
 		}
 
-		transform.localEulerAngles = new Vector3(0f, (float)Cog, 0f);
+		transform.localEulerAngles = new Vector3(0f, (float)TrueHeading, 0f);
 
 		if (Width > 0 && Length > 0) 
 		{
-			Debug.Log ("DIMMMM!!!");
-			this.gameObject.transform.localScale = new Vector3((float)Width,(float)Length,1.0f);
+			//Debug.Log ("DIMMMM!!!");
+			//this.gameObject.transform.localScale = new Vector3((float)Width,(float)Length,15.0f);
+			this.gameObject.transform.localScale = new Vector3(0.1f*(float)Width,0.1f*(float)Length,2.0f);
 		}
 
 

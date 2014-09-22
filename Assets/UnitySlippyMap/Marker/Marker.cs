@@ -73,7 +73,7 @@ public class Marker : MonoBehaviour
 			}
 			
 			coordinatesEPSG900913 = value;
-            CoordinatesWGS84 = Map.EPSG900913ToWGS84Transform.Transform(coordinatesEPSG900913); //GeoHelpers.MetersToWGS84(coordinatesEPSG900913[0], coordinatesEPSG900913[1]);
+            CoordinatesWGS84 = Map.EPSG900913ToWGS84Transform.Transform(CoordinatesEPSG900913); //GeoHelpers.MetersToWGS84(coordinatesEPSG900913[0], coordinatesEPSG900913[1]);
 
 			Reposition();
 		}

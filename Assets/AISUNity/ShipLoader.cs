@@ -25,11 +25,11 @@ public class ShipLoader : MonoBehaviour {
 		get { return packetCount; }
 	}
 
-	JSONNode latest = null;
-	public JSONNode Latest
+	List<JSONNode> buffer = null;
+	public List<JSONNode> Buffer
 	{
-		get { return latest; }
-		set { latest = value; }
+		get { return buffer; }
+		set { buffer = value; }
 	}
 
 
@@ -84,23 +84,6 @@ public class ShipLoader : MonoBehaviour {
 		DoneSpawning = true;
 		DrawnPos = new double[]{-900,-900};
 		StartCoroutine("UpdateShip");
-
-		Thread newThread = new Thread (() => 
-		{
-			while(true)
-			{
-				if (av.Latest !=null && av.Latest.MoveNext ())
-				{
-					Latest = av.Latest.Current;
-
-					//Debug.Log("changing latest");
-				}
-	
-			}
-		});
-
-		newThread.Start();
-
 	}
 	
 
@@ -130,19 +113,32 @@ public class ShipLoader : MonoBehaviour {
 		}
 
 
-		UpdateShip ();
+		UpdateShips ();
 
 
 
 	}
 
 
-	void UpdateShip()
+	void UpdateShips()
 	{
-		JSONNode vessel = Latest;
+		List<JSONNode> vessels = Buffer;
 		
-		if (vessel != null) Latest = null;
-		
+		if (vessels != null) Buffer = new List<JSONNode>();
+
+
+		int count = 0;
+		foreach (var vessel in vessels) 
+		{
+			count++;
+			UpdateShip(vessel);
+		}
+
+		Debug.Log ("Packets in Buffer: " + count);
+	}
+
+	void UpdateShip(JSONNode vessel)
+	{
 		
 		int mmsi = -9999;
 		Double lon = -9999;
@@ -185,25 +181,25 @@ public class ShipLoader : MonoBehaviour {
 				//disabled while I test the stability of the packet stream
 				//GameObject ship = Instantiate(gos[1]) as GameObject;
 				GameObject ship = GameObject.CreatePrimitive(PrimitiveType.Cube);
-
+				
 				//ship.AddComponent<Rigidbody>();
 				
 				shipMarker = map.CreateMarker<Ship>(mmsi, new double[2] { lon,lat  }, ship) as Ship;
 				shipMarker.Speed = 0;
-				shipMarker.Cog = rot;
+				
 			}
 		}
-
-
+		
+		
 		//update other info
 		if (map.Markers.ContainsKey (mmsi)) 
 		{
 			shipMarker = (Ship)map.Markers [mmsi];
 			//set if not null
 			shipMarker.DimBow = (vessel ["dimBow"] != null) ? vessel ["dimBow"].AsInt : 0;
-			shipMarker.DimBow = vessel ["dimStern"] != null ? vessel ["dimStern"].AsInt : 0;
-			shipMarker.DimBow = vessel ["dimStarboard"] != null ? vessel ["dimStarboard"].AsInt : 0;
-			shipMarker.DimBow = vessel ["dimPort"] != null ? vessel ["dimPort"].AsInt : 0;
+			shipMarker.DimStern = vessel ["dimStern"] != null ? vessel ["dimStern"].AsInt : 0;
+			shipMarker.DimStarboard = vessel ["dimStarboard"] != null ? vessel ["dimStarboard"].AsInt : 0;
+			shipMarker.DimPort = vessel ["dimPort"] != null ? vessel ["dimPort"].AsInt : 0;
 			shipMarker.ShipName = vessel ["name"] != null ? (string)vessel ["name"] : "Unknown";
 			shipMarker.Sog = vessel ["sog"] != null ? vessel ["sog"].AsDouble : 0;
 			shipMarker.Cog = vessel ["cog"] != null ? vessel ["cog"].AsDouble : 0;
@@ -223,9 +219,8 @@ public class ShipLoader : MonoBehaviour {
 				IEnumerator<JSONNode> myEnumerator = av.Stream (bbox);
 				av.Latest = myEnumerator;
 
-				while(true) {
-					Thread.Sleep(1000);
-					if (!myEnumerator.Equals (av.Latest)) break;
+				while(av.Latest != null && av.Latest.Equals(myEnumerator)) {
+					if (av.Latest.MoveNext()) Buffer.Add(av.Latest.Current);
 				}
 
 				Debug.Log("DECOMISSIONING Thread "+bbox[0]);
