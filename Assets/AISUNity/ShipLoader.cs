@@ -83,7 +83,6 @@ public class ShipLoader : MonoBehaviour {
 		IsDirty = false;
 		DoneSpawning = true;
 		DrawnPos = new double[]{-900,-900};
-		StartCoroutine("UpdateShip");
 	}
 	
 
