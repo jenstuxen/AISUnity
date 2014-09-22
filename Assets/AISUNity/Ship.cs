@@ -135,20 +135,20 @@ public class Ship : Marker {
 		double dY = 0;
 
 		if (Sog > 0 && Cog > -1) {
-			Debug.Log("SOG IT!");
+			//Debug.Log("SOG IT!");
 
 			//this is not enough but should give a "relative" speed
 			dX = Mathf.Sin(rotInRad)*(sog*0.51/Map.MetersPerPixel);
 			dY = Mathf.Cos(rotInRad)*(sog*0.51/Map.MetersPerPixel);
 		}
 
-		transform.localEulerAngles = new Vector3(0f, (float)TrueHeading, 0f);
+		transform.localEulerAngles = new Vector3(0f, (float)Cog, 0f);
 
 		if (Width > 0 && Length > 0) 
 		{
 			//Debug.Log ("DIMMMM!!!");
 			//this.gameObject.transform.localScale = new Vector3((float)Width,(float)Length,15.0f);
-			this.gameObject.transform.localScale = new Vector3(0.1f*(float)Width,0.1f*(float)Length,2.0f);
+			this.gameObject.transform.localScale = new Vector3(0.002f*(float)Width,1.0f,0.002f*(float)Length);
 		}
 
 

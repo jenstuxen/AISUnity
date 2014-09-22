@@ -83,6 +83,7 @@ public class ShipLoader : MonoBehaviour {
 		IsDirty = false;
 		DoneSpawning = true;
 		DrawnPos = new double[]{-900,-900};
+		CallWebService ();
 	}
 	
 
@@ -133,7 +134,7 @@ public class ShipLoader : MonoBehaviour {
 			UpdateShip(vessel);
 		}
 
-		Debug.Log ("Packets in Buffer: " + count);
+		//Debug.Log ("Packets in Buffer: " + count);
 	}
 
 	void UpdateShip(JSONNode vessel)
@@ -211,7 +212,7 @@ public class ShipLoader : MonoBehaviour {
 	void CallWebService()
 	{
 		//av.terminateConnections();
-		double[] bbox = new double[]{map.CenterWGS84[1]-0.25,map.CenterWGS84[0]-0.25,map.CenterWGS84[1]+0.25,map.CenterWGS84[0]+0.25};
+		double[] bbox = new double[]{map.CenterWGS84[1]-0.2,map.CenterWGS84[0]-0.2,map.CenterWGS84[1]+0.2,map.CenterWGS84[0]+0.2};
 
 		Thread b = new Thread (() => {
 				Debug.Log ("New Thread Started "+bbox[0]);
