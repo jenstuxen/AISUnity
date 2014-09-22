@@ -73,7 +73,7 @@ public class AisViewClient
 	{
 		Debug.Log ("Starting new Web Request");
 		terminateConnections ();
-		Uri uri = new Uri (BaseUri, "/stream/json/"+parameters);
+		Uri uri = new Uri (BaseUri, "/beta/stream/json/"+parameters);
 		WebRequest wb = request (uri);
 		wb.Timeout = 5000;
 
@@ -83,8 +83,6 @@ public class AisViewClient
 		StreamReader reader = new StreamReader (wr.GetResponseStream());
 		while (!reader.EndOfStream) 
 		{
-			Debug.Log ("reading packet");
-
 			JSONNode json = null;
 
 			try

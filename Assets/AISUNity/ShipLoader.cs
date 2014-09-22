@@ -43,8 +43,6 @@ public class ShipLoader : MonoBehaviour {
 		set { enumerator = value; }
 	}
 
-	Coroutine op;
-
 	private Boolean isDirty = true;
 	public Boolean IsDirty
 	{
@@ -94,6 +92,7 @@ public class ShipLoader : MonoBehaviour {
 				if (av.Latest !=null && av.Latest.MoveNext ())
 				{
 					Latest = av.Latest.Current;
+
 					//Debug.Log("changing latest");
 				}
 	
@@ -158,7 +157,7 @@ public class ShipLoader : MonoBehaviour {
 				mmsi = vessel ["mmsi"].AsInt;
 				lon = vessel["lon"].AsDouble;
 				lat = vessel["lat"].AsDouble;
-				rot = vessel["cog"].AsDouble/1000.0;
+				rot = vessel["trueHeading"].AsInt;
 				shipType = vessel["shipType"];
 			}
 		} 
@@ -166,18 +165,17 @@ public class ShipLoader : MonoBehaviour {
 		{
 			
 		}
-		
+		Ship shipMarker = null;
 		if (lat < 90.0 && lat > -90.0 && lon < 180.0 && lon > -180)
 		{
-			Ship shipMarker = null;
 			if (map.Markers.ContainsKey(mmsi))
 			{
 				try 
 				{
 					shipMarker = (Ship) map.Markers[mmsi];
 					shipMarker.CoordinatesWGS84 = new double[2] {lon,lat};
-					shipMarker.Rotation = rot;
-					
+					shipMarker.Cog = rot;
+					//Debug.Log ("Updated dynamic info");
 				} catch (System.NullReferenceException)
 				{
 				}
@@ -192,9 +190,26 @@ public class ShipLoader : MonoBehaviour {
 				
 				shipMarker = map.CreateMarker<Ship>(mmsi, new double[2] { lon,lat  }, ship) as Ship;
 				shipMarker.Speed = 0;
-				shipMarker.Rotation = rot;
+				shipMarker.Cog = rot;
 			}
 		}
+
+
+		//update other info
+		if (map.Markers.ContainsKey (mmsi)) 
+		{
+			shipMarker = (Ship)map.Markers [mmsi];
+			//set if not null
+			shipMarker.DimBow = (vessel ["dimBow"] != null) ? vessel ["dimBow"].AsInt : 0;
+			shipMarker.DimBow = vessel ["dimStern"] != null ? vessel ["dimStern"].AsInt : 0;
+			shipMarker.DimBow = vessel ["dimStarboard"] != null ? vessel ["dimStarboard"].AsInt : 0;
+			shipMarker.DimBow = vessel ["dimPort"] != null ? vessel ["dimPort"].AsInt : 0;
+			shipMarker.ShipName = vessel ["name"] != null ? (string)vessel ["name"] : "Unknown";
+			shipMarker.Sog = vessel ["sog"] != null ? vessel ["sog"].AsDouble : 0;
+			shipMarker.Cog = vessel ["cog"] != null ? vessel ["cog"].AsDouble : 0;
+			shipMarker.TrueHeading = vessel ["trueHeading"] != null ? vessel ["trueHeading"].AsInt : 0;
+		}
+
 	}
 	
 	
