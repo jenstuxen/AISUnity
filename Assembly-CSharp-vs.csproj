@@ -49,6 +49,7 @@
      <Compile Include="Assets\AISUNity\AisViewClient.cs" />
      <Compile Include="Assets\AISUNity\Ship.cs" />
      <Compile Include="Assets\AISUNity\ShipLoader.cs" />
+     <Compile Include="Assets\Resize.cs" />
      <Compile Include="Assets\TestScripts\TestMap.cs" />
      <Compile Include="Assets\UnitySlippyMap\GUI\GUI.cs" />
      <Compile Include="Assets\UnitySlippyMap\Helpers\CameraFacingBillboard.cs" />
