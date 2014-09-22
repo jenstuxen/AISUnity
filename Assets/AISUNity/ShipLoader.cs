@@ -25,7 +25,7 @@ public class ShipLoader : MonoBehaviour {
 		get { return packetCount; }
 	}
 
-	List<JSONNode> buffer = null;
+	List<JSONNode> buffer = new List<JSONNode>();
 	public List<JSONNode> Buffer
 	{
 		get { return buffer; }

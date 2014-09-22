@@ -183,8 +183,10 @@ public class TestMap : MonoBehaviour
 		// create an OSM tile layer
         OSMTileLayer osmLayer = map.CreateLayer<OSMTileLayer>("OSM");
         osmLayer.BaseURL = "http://a.tile.openstreetmap.org/";
+
+		osmLayer.gameObject.SetActive(false);
 		
-        layers.Add(osmLayer);
+        //layers.Add(osmLayer);
 
 		// create a WMS tile layer
         WMSTileLayer wmsLayer = map.CreateLayer<WMSTileLayer>("WMS");
@@ -198,7 +200,7 @@ public class TestMap : MonoBehaviour
 		wmsLayer.gameObject.SetActive(false);
 #endif
 
-        layers.Add(wmsLayer);
+        //layers.Add(wmsLayer);
 
 		// create a VirtualEarth tile layer
         VirtualEarthTileLayer virtualEarthLayer = map.CreateLayer<VirtualEarthTileLayer>("VirtualEarth");
@@ -210,7 +212,7 @@ public class TestMap : MonoBehaviour
 #if UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_3_6 || UNITY_3_7 || UNITY_3_8 || UNITY_3_9
         virtualEarthLayer.gameObject.SetActiveRecursively(false);
 #else
-		virtualEarthLayer.gameObject.SetActive(false);
+		virtualEarthLayer.gameObject.SetActive(true);
 #endif
 
         layers.Add(virtualEarthLayer);
@@ -271,7 +273,7 @@ public class TestMap : MonoBehaviour
 			mbTilesLayer.gameObject.SetActive(false);
 #endif
 
-            layers.Add(mbTilesLayer);
+            //layers.Add(mbTilesLayer);
 		}
         else
             Debug.LogError("ERROR: MBTiles file not found!");

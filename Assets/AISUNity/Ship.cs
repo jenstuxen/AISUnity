@@ -138,8 +138,8 @@ public class Ship : Marker {
 			Debug.Log("SOG IT!");
 
 			//this is not enough but should give a "relative" speed
-			dX = Mathf.Sin(rotInRad)*(sog*0.51);
-			dY = Mathf.Cos(rotInRad)*(sog*0.51);
+			dX = Mathf.Sin(rotInRad)*(sog*0.51/Map.MetersPerPixel);
+			dY = Mathf.Cos(rotInRad)*(sog*0.51/Map.MetersPerPixel);
 		}
 
 		transform.localEulerAngles = new Vector3(0f, (float)TrueHeading, 0f);

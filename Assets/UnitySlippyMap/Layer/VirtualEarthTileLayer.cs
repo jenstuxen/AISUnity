@@ -78,7 +78,7 @@ public class VirtualEarthTileLayer : WebTileLayer
     /// <summary>
     /// The request URI for the metada.
     /// </summary>
-    private string          metadataRequestURI = "/REST/V1/Imagery/Metadata/Road?mapVersion=v1&output=xml&key=";
+		private string          metadataRequestURI = "/REST/V1/Imagery/Metadata/Aerial/?mapVersion=v1&output=xml&key=";
     public string           MetadataURL
     {
         get { return metadataRequestURI; }
