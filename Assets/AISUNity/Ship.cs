@@ -118,15 +118,15 @@ public class Ship : Marker
 		// Update is called once per frame
 		new void Update ()
 		{
-				float rotInRad = (float)Cog * Mathf.Deg2Rad;
+				float rotInRad = (float)Cog/10.0f * Mathf.Deg2Rad;
 
 				double dX = 0;
 				double dY = 0;
 
 				if (Sog > 0 && Cog > -1) {
 						//this is not enough but should give a "relative" speed
-						dX = Mathf.Sin (rotInRad) * (sog * 0.51 / Map.MetersPerPixel);
-						dY = Mathf.Cos (rotInRad) * (sog * 0.51 / Map.MetersPerPixel);
+						//dX = Mathf.Sin (rotInRad) * (sog * 0.51 / Map.MetersPerPixel);
+						//dY = Mathf.Cos (rotInRad) * (sog * 0.51 / Map.MetersPerPixel);
 				}
 
 				transform.localEulerAngles = new Vector3 (0f, (float)Cog, 0f);
@@ -134,7 +134,7 @@ public class Ship : Marker
 				if (Width > 0 && Length > 0) {
 						//Debug.Log ("DIMMMM!!!");
 						//this.gameObject.transform.localScale = new Vector3((float)Width,(float)Length,15.0f);
-						this.gameObject.transform.localScale = new Vector3 (0.002f * (float)Width, 1.0f, 0.002f * (float)Length);
+						this.gameObject.transform.localScale = new Vector3 (0.002f * (float)Width, 0.1f, 0.002f * (float)Length);
 				}
 
 				CoordinatesEPSG900913 = new double[] {

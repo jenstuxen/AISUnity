@@ -148,7 +148,7 @@ public class ShipLoader : MonoBehaviour
 				int mmsi = -9999;
 				Double lon = -9999;
 				Double lat = -9999;	
-				Double rot = -9999;
+				Double cog = -9999;
 				string shipType = "N/A";
 		
 				try {
@@ -156,7 +156,7 @@ public class ShipLoader : MonoBehaviour
 								mmsi = vessel ["mmsi"].AsInt;
 								lon = vessel ["lon"].AsDouble;
 								lat = vessel ["lat"].AsDouble;
-								rot = vessel ["trueHeading"].AsInt;
+								cog = vessel ["cog"].AsInt;
 								shipType = vessel ["shipType"];
 						}
 				} catch (System.NullReferenceException) {
@@ -168,7 +168,7 @@ public class ShipLoader : MonoBehaviour
 								try {
 										shipMarker = (Ship)map.Markers [mmsi];
 										shipMarker.CoordinatesWGS84 = new double[2] {lon,lat};
-										shipMarker.Cog = rot;
+										shipMarker.Cog = cog;
 										//Debug.Log ("Updated dynamic info");
 								} catch (System.NullReferenceException) {
 								}
