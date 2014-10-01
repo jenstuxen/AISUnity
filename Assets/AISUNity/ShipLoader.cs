@@ -102,11 +102,11 @@ public class ShipLoader : MonoBehaviour
 				IsDirty = false;
 				DoneSpawning = true;
 				DrawnPos = new double[]{-900,-900};
-				CallWebService ();
+				CallWebService (true);
 		}
 
 		// Update is called once per frame
-		void Update ()
+		void FixedUpdate ()
 		{
 				if (IsDirty) {
 						IsDirty = false;
@@ -116,7 +116,7 @@ public class ShipLoader : MonoBehaviour
 						//Debug.Log(map.CenterWGS84[0]);
 						//Debug.Log (map.CenterWGS84[1]);
 
-						CallWebService ();
+						CallWebService (true);
 
 				}
 
@@ -129,18 +129,23 @@ public class ShipLoader : MonoBehaviour
 
 		void UpdateShips ()
 		{
+				
+				//where are my concurrent queues???
+				int snapshotCount = Buffer.Count;
 				List<JSONNode> vessels = Buffer;
-		
-				if (vessels != null)
-						Buffer = new List<JSONNode> ();
+				if (vessels.Count > 0)
+					Buffer = new List<JSONNode> ();
 
+
+				JSONNode[] arr = vessels.ToArray ();
+				
 				int count = 0;
-				foreach (var vessel in vessels) {
-						count++;
-						UpdateShip (vessel);
+				while (count < snapshotCount) {
+					UpdateShip(arr[count]);
+					count++;
 				}
-
-				//Debug.Log ("Packets in Buffer: " + count);
+				
+				if (count > 0) Debug.Log ("Packets in Buffer: " + count);
 		}
 
 		void UpdateShip (JSONNode vessel)
@@ -200,28 +205,45 @@ public class ShipLoader : MonoBehaviour
 				}
 		}
 
-		void CallWebService ()
+		void CallWebService (Boolean full)
 		{
 				//av.terminateConnections();
 				double[] bbox = new double[] {
-						map.CenterWGS84 [1] - 0.2,
-						map.CenterWGS84 [0] - 0.2,
-						map.CenterWGS84 [1] + 0.2,
-						map.CenterWGS84 [0] + 0.2
+						map.CenterWGS84 [1] - 1.0,
+						map.CenterWGS84 [0] - 1.0,
+						map.CenterWGS84 [1] + 1.0,
+						map.CenterWGS84 [0] + 1.0
 				};
 
 				Thread b = new Thread (() => {
 						Debug.Log ("New Thread Started " + bbox [0]);
-						IEnumerator<JSONNode> myEnumerator = av.Stream (bbox);
-						av.Latest = myEnumerator;
+						IEnumerator<JSONNode> myEnumerator;
+						if (full) {
+								Debug.Log("Initiating Full Update");
+								myEnumerator = av.TrackerPackets (bbox);
+						} else {
 
-						while (av.Latest != null && av.Latest.Equals(myEnumerator)) {
-								if (av.Latest.MoveNext ())
-										Buffer.Add (av.Latest.Current);
+								myEnumerator = av.Stream (bbox);
 						}
 
-						Debug.Log ("DECOMISSIONING Thread " + bbox [0]);
-				});
+
+						
+						av.Latest = myEnumerator;
+						Thread.Sleep(2000);
+						while (av.Latest != null && av.Latest.Equals(myEnumerator)) {
+								if (av.Latest.MoveNext ()) {
+										Buffer.Add (av.Latest.Current);
+								} else {
+										Debug.Log("Initiating Stream Connection");
+										CallWebService (false);
+										Thread.Sleep(2000);
+								}
+								
+						}
+
+						if (full) Debug.Log ("DECOMISSIONING FULL UPDATE " + bbox [0]);
+						else  Debug.Log ("DECOMISSIONING STREAM " + bbox [0]);	
+		});
 
 				b.Start ();
 		}

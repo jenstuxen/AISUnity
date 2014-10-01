@@ -95,6 +95,37 @@ public class AisViewClient
 				yield return null;
 		}
 
+		public IEnumerator<JSONNode> TrackerPackets (String parameters)
+		{
+				Debug.Log ("Starting new /tracker/packets/json");
+				terminateConnections ();
+				Uri uri = new Uri (BaseUri, "/beta/tracker/packets/json" + parameters);
+				WebRequest wb = request (uri);
+				wb.Timeout = 5000;
+			
+				WebResponse wr = wb.GetResponse ();
+				Connections.Add (wr);
+			
+				StreamReader reader = new StreamReader (wr.GetResponseStream ());
+				while (!reader.EndOfStream) {
+						JSONNode json = null;
+						String line = reader.ReadLine ();
+						try {
+					
+								json = JSON.Parse (line);
+						} catch (Exception e) {
+										
+								Debug.Log ("ERROR IN JSON ARRAY");
+								Debug.Log ("Line: " + line);
+								Debug.Log (e.Message);
+						} 
+						yield return json;
+				}
+			
+				Debug.Log ("/tracker/packets/json loop ended");
+				yield return null;
+		}
+
 		public void terminateConnections ()
 		{
 				List<WebResponse> all = Connections;
@@ -120,22 +151,22 @@ public class AisViewClient
 				return Stream (bbox [0], bbox [1], bbox [2], bbox [3]);
 		}
 
-		public IEnumerator<JSONNode> Stream (double topLat, double topLon, double botLat, double botLon)
+		public IEnumerator<JSONNode> TrackerPackets (double[] bbox)
 		{
-				string parameters = "?filter=t.pos within bbox(" + topLat + "," + topLon + "," + botLat + "," + botLon + ")";
-
-				return Stream (parameters);
+				return TrackerPackets (bbox [0], bbox [1], bbox [2], bbox [3]);
 		}
 
-		public JSONNode Packets (string parameters)
-		{
-				return requestJSON ("/packets" + parameters);
-		}
-
-		public JSONNode packets (double topLat, double topLon, double botLat, double botLon)
+		public IEnumerator<JSONNode> TrackerPackets (double topLat, double topLon, double botLat, double botLon)
 		{
 				string parameters = "?box=" + topLat + "," + topLon + "," + botLat + "," + botLon;
-				return Packets (parameters);
+				return TrackerPackets (parameters);
+		}
+
+		public IEnumerator<JSONNode> Stream (double topLat, double topLon, double botLat, double botLon)
+		{
+
+				string parameters = "?filter=t.pos within bbox(" + topLat + "," + topLon + "," + botLat + "," + botLon + ")";
+				return Stream (parameters);
 		}
 
 		public Boolean ping ()
