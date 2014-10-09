@@ -43,6 +43,8 @@ public class VirtualEarthTileLayer : WebTileLayer
 
     #region Private members & properties
 
+	
+
     /// <summary>
     /// Set it to true to notify the VirtualEarthTileLayer to reload the metadata.
     /// </summary>

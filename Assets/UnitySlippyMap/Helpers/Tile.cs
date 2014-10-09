@@ -254,7 +254,7 @@ public class Tile : MonoBehaviour
 		    new Vector2(textureInfo.Rect.xMin / textureInfo.Texture.width, textureInfo.Rect.yMax / textureInfo.Texture.height)
 		};
 		*/
-		
+
 		material = this.gameObject.renderer.material;
 		material.mainTexture = texture;
 		material.mainTexture.wrapMode = TextureWrapMode.Clamp;

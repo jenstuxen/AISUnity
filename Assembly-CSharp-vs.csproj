@@ -39,10 +39,10 @@
 	<Reference Include="System.Core" />
 	<Reference Include="System.Xml.Linq" />
 	<Reference Include="UnityEngine">
-	  <HintPath>E:/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
 	</Reference>
 	<Reference Include="UnityEditor">
-	  <HintPath>E:/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup>
@@ -88,14 +88,15 @@
      <Compile Include="Assets\UnitySlippyMap\Map.cs" />
      <Compile Include="Assets\UnitySlippyMap\Marker\LocationMarker.cs" />
      <Compile Include="Assets\UnitySlippyMap\Marker\Marker.cs" />
+     <Compile Include="Assets\Utils.cs" />
      <None Include="Assets\UnitySlippyMap\Dll\ProjNet.1.2\ProjNet.xml" />
      <None Include="Assets\UnitySlippyMap\Resources\Shaders\SomianUnlitTransparent.shader" />
      <None Include="Assets\UnitySlippyMap\Resources\SRID.txt" />
  <Reference Include="ICSharpCode.SharpZipLib">
- <HintPath>C:/Users/jtj/Documents/workspace/AISUnity/Assets/Plugins/ICSharpCode.SharpZipLib.dll</HintPath>
+ <HintPath>C:/Users/Jens/Documents/workspace/AISUnity/Assets/Plugins/ICSharpCode.SharpZipLib.dll</HintPath>
  </Reference>
  <Reference Include="ProjNet">
- <HintPath>C:/Users/jtj/Documents/workspace/AISUnity/Assets/UnitySlippyMap/Dll/ProjNet.1.2/ProjNet.dll</HintPath>
+ <HintPath>C:/Users/Jens/Documents/workspace/AISUnity/Assets/UnitySlippyMap/Dll/ProjNet.1.2/ProjNet.dll</HintPath>
  </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -37,6 +37,7 @@ namespace UnitySlippyMap
 // </summary>
 public class TileDownloader : MonoBehaviour
 {
+	
 	#region Singleton implementation
 	
 	private static TileDownloader instance = null;
@@ -196,7 +197,8 @@ public class TileDownloader : MonoBehaviour
 #if DEBUG_PROFILE
 			UnitySlippyMap.Profiler.Begin("www error test");
 #endif
-			if (www.error == null && www.text.Contains("404 Not Found") == false)
+
+				if (www.error == null && www.text.Contains("404 Not Found") == false && !www.texture.isBogus())
 			{
 #if DEBUG_PROFILE
 				UnitySlippyMap.Profiler.End("www error test");
@@ -206,6 +208,9 @@ public class TileDownloader : MonoBehaviour
 #endif
 
                 Texture2D texture = new Texture2D(1, 1, TextureFormat.ARGB32, true);
+				
+				//System.IO.File.WriteAllText(@"C:\Users\Public\WriteLines.txt",www.texture.asPNGDeclaration());
+
 				www.LoadImageIntoTexture(texture);
 				
 #if DEBUG_PROFILE
