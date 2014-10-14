@@ -35,11 +35,12 @@ public class ShipLoader : MonoBehaviour
 				SHIPS_ACCORDING_TO_RR,
 				UNKNOWN}
 		;
+		
+		public GameObject defaultShipModel;
 
-		public GameObject[] gos;
 		public Map map;
 		public Texture	MarkerTexture;
-		public GameObject go;
+
 		private int packetCount = -1;
 
 		public int PacketCount {
@@ -94,6 +95,7 @@ public class ShipLoader : MonoBehaviour
 		// Use this for initialization
 		void Start ()
 		{
+				defaultShipModel = (Resources.Load ("Ships/Steamer boat")) as GameObject;
 				av = new AisViewClient ("aisview");
 
 				map = GameObject.Find ("Test").GetComponent<TestMap> ().map;
@@ -106,7 +108,7 @@ public class ShipLoader : MonoBehaviour
 		}
 
 		// Update is called once per frame
-		void FixedUpdate ()
+		void Update ()
 		{
 				if (IsDirty) {
 						IsDirty = false;
@@ -133,11 +135,9 @@ public class ShipLoader : MonoBehaviour
 				//where are my concurrent queues???
 				int snapshotCount = Buffer.Count;
 				List<JSONNode> vessels = Buffer;
+				JSONNode[] arr = vessels.ToArray ();
 				if (vessels.Count > 0)
 					Buffer = new List<JSONNode> ();
-
-
-				JSONNode[] arr = vessels.ToArray ();
 				
 				int count = 0;
 				while (count < snapshotCount) {
@@ -180,7 +180,9 @@ public class ShipLoader : MonoBehaviour
 						} else {	
 								//disabled while I test the stability of the packet stream
 								//GameObject ship = Instantiate(gos[1]) as GameObject;
-								GameObject ship = GameObject.CreatePrimitive (PrimitiveType.Cube);
+								//GameObject ship = GameObject.CreatePrimitive (PrimitiveType.Cube);
+
+								GameObject ship = Instantiate(defaultShipModel) as GameObject;
 				
 								//ship.AddComponent<Rigidbody>();
 				

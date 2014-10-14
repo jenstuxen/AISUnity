@@ -123,19 +123,25 @@ public class Ship : Marker
 				double dX = 0;
 				double dY = 0;
 
-				if (Sog > 0 && Cog > -1) {
-						//this is not enough but should give a "relative" speed
-						//dX = Mathf.Sin (rotInRad) * (sog * 0.51 / Map.MetersPerPixel);
-						//dY = Mathf.Cos (rotInRad) * (sog * 0.51 / Map.MetersPerPixel);
+				if (Sog > 0 && Cog > -1 && Sog < 1023) {
+					//not representative of real world
+					dX = Mathf.Sin (rotInRad) * (sog * 0.51 * Map.MetersPerPixel)/Map.RoundedHalfMapScale/20000;
+					dY = Mathf.Cos (rotInRad) * (sog * 0.51 * Map.MetersPerPixel)/Map.RoundedHalfMapScale/20000;
 				}
+				
+				if (Map.RoundedMetersPerPixel > 1) {
+						this.gameObject.transform.localScale = new Vector3 (0.4f * Map.HalfMapScale, .4f * Map.HalfMapScale, 0.4f * Map.HalfMapScale);
 
-				transform.localEulerAngles = new Vector3 (0f, (float)Cog, 0f);
-
-				if (Width > 0 && Length > 0) {
-						//Debug.Log ("DIMMMM!!!");
-						//this.gameObject.transform.localScale = new Vector3((float)Width,(float)Length,15.0f);
-						this.gameObject.transform.localScale = new Vector3 (0.002f * (float)Width, 0.1f, 0.002f * (float)Length);
+						if (Width > 0 && Length > 0) {
+							//Debug.Log ("DIMMMM!!!");
+							//this.gameObject.transform.localScale = new Vector3((float)Width,(float)Length,15.0f);
+							this.gameObject.transform.localScale = new Vector3 ((float)Width*0.01f * Map.HalfMapScale, (float)Length*.01f * Map.HalfMapScale, 0.4f * Map.HalfMapScale);
+						}
 				}
+				
+				transform.localEulerAngles = new Vector3 (0f, (float)Cog/10.0f, 0f);
+
+
 
 				CoordinatesEPSG900913 = new double[] {
 						dX + CoordinatesEPSG900913 [0],
