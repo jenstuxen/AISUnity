@@ -135,10 +135,11 @@ public class ShipLoader : MonoBehaviour
 				//where are my concurrent queues???
 				int snapshotCount = Buffer.Count;
 				List<JSONNode> vessels = Buffer;
-				JSONNode[] arr = vessels.ToArray ();
+				
 				if (vessels.Count > 0)
 					Buffer = new List<JSONNode> ();
-				
+				JSONNode[] arr = vessels.ToArray ();
+
 				int count = 0;
 				while (count < snapshotCount) {
 					UpdateShip(arr[count]);

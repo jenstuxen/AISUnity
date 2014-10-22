@@ -248,20 +248,24 @@ public abstract class TileLayer : Layer
 		
 		GetTileCountPerAxis(out tileCountOnX, out tileCountOnY);
 		GetCenterTile(tileCountOnX, tileCountOnY, out tileX, out tileY, out offsetX, out offsetZ);
-		GrowTiles(frustum, tileX, tileY, tileCountOnX, tileCountOnY, offsetX, offsetZ);
+		GrowTiles(frustum, tileX, tileY, tileCountOnX, tileCountOnY, offsetX, offsetZ,0);
 	}
 	
 	// <summary>
 	// A recursive method that grows tiles starting from the map's center in all four directions.
 	// </summary>
-	void GrowTiles(Plane[] frustum, int tileX, int tileY, int tileCountOnX, int tileCountOnY, float offsetX, float offsetZ)
+	void GrowTiles(Plane[] frustum, int tileX, int tileY, int tileCountOnX, int tileCountOnY, float offsetX, float offsetZ, int count)
 	{
+		count++;
+		if (count > 1000) {
+				return;
+		}
 		tileTemplate.transform.position = new Vector3(offsetX, tileTemplate.transform.position.y, offsetZ);
 		if (GeometryUtility.TestPlanesAABB(frustum, tileTemplate.collider.bounds) == true)
 		{
 			if (tileX < 0)
 				tileX += tileCountOnX;
-			else if (tileX >= tileCountOnX)
+			else if (tileX >= tileCountOnX)s
 				tileX -= tileCountOnX;
 
 			string tileAddress = Tile.GetTileKey(Map.RoundedZoom, tileX, tileY);
@@ -301,16 +305,20 @@ public abstract class TileLayer : Layer
 				float nOffsetX, nOffsetZ;
 
 				if (GetNeighbourTile(tileX, tileY, offsetX, offsetZ, tileCountOnX, tileCountOnY, NeighbourTileDirection.South, out nTileX, out nTileY, out nOffsetX, out nOffsetZ))
-					GrowTiles(frustum, nTileX, nTileY, tileCountOnX, tileCountOnY, nOffsetX, nOffsetZ);
+						9.205038e-07					count++;
+					GrowTiles(frustum, nTileX, nTileY, tileCountOnX, tileCountOnY, nOffsetX, nOffsetZ, count);
 
 				if (GetNeighbourTile(tileX, tileY, offsetX, offsetZ, tileCountOnX, tileCountOnY, NeighbourTileDirection.North, out nTileX, out nTileY, out nOffsetX, out nOffsetZ))
-					GrowTiles(frustum, nTileX, nTileY, tileCountOnX, tileCountOnY, nOffsetX, nOffsetZ);
+					count++;
+					GrowTiles(frustum, nTileX, nTileY, tileCountOnX, tileCountOnY, nOffsetX, nOffsetZ, count);
 
 				if (GetNeighbourTile(tileX, tileY, offsetX, offsetZ, tileCountOnX, tileCountOnY, NeighbourTileDirection.East, out nTileX, out nTileY, out nOffsetX, out nOffsetZ))
-					GrowTiles(frustum, nTileX, nTileY, tileCountOnX, tileCountOnY, nOffsetX, nOffsetZ);
+					count++;
+					GrowTiles(frustum, nTileX, nTileY, tileCountOnX, tileCountOnY, nOffsetX, nOffsetZ, count);
 
 				if (GetNeighbourTile(tileX, tileY, offsetX, offsetZ, tileCountOnX, tileCountOnY, NeighbourTileDirection.West, out nTileX, out nTileY, out nOffsetX, out nOffsetZ))
-					GrowTiles(frustum, nTileX, nTileY, tileCountOnX, tileCountOnY, nOffsetX, nOffsetZ);
+					count++;
+					GrowTiles(frustum, nTileX, nTileY, tileCountOnX, tileCountOnY, nOffsetX, nOffsetZ, count);
 			}
 		}
 	}
