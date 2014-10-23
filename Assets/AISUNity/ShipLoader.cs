@@ -164,6 +164,7 @@ public class ShipLoader : MonoBehaviour
 								lat = vessel ["lat"].AsDouble;
 								cog = vessel ["cog"].AsInt;
 								shipType = vessel ["shipType"];
+								
 						}
 				} catch (System.NullReferenceException) {
 			
@@ -188,8 +189,6 @@ public class ShipLoader : MonoBehaviour
 								//ship.AddComponent<Rigidbody>();
 				
 								shipMarker = map.CreateMarker<Ship> (mmsi, new double[2] { lon,lat  }, ship) as Ship;
-								shipMarker.Speed = 0;
-				
 						}
 				}
 				
@@ -205,6 +204,13 @@ public class ShipLoader : MonoBehaviour
 						shipMarker.Sog = vessel ["sog"] != null ? vessel ["sog"].AsDouble : 0;
 						shipMarker.Cog = vessel ["cog"] != null ? vessel ["cog"].AsDouble : 0;
 						shipMarker.TrueHeading = vessel ["trueHeading"] != null ? vessel ["trueHeading"].AsInt : 0;
+						
+						if (vessel["timestamp"] != null && vessel["timestamp"].AsDouble > 0 && shipMarker.isValidPosition(lat,lon)) {
+							
+							shipMarker.addPNT(new double[2] {lon,lat},vessel["timestamp"].AsDouble);
+
+						}
+						
 				}
 		}
 

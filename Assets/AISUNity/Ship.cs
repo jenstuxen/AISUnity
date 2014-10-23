@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnitySlippyMap;
  
 public class Ship : Marker
 {
 
 		private double speed;
-
 		public double Speed {
 				get { return speed; }
 				set { speed = value; }
@@ -111,6 +111,72 @@ public class Ship : Marker
 				get { return DimPort + DimStarboard; }
 		}
 
+		public class PNT {
+			public PNT(double[] pos, double timestamp) {
+				this.lon = (float)pos[0];
+				this.lat = (float)pos[1];
+				this.timestamp = timestamp;
+			}
+			public float lon;
+			public float lat;
+			public double timestamp;
+		}
+
+		private Queue<PNT> history = new Queue<PNT> ();
+		public Queue<PNT> History {
+			get { return history; }
+			set { history = value;}		
+		}
+
+		public bool isValidPosition(double lat, double lon) {
+			return lat < 90.0 && lat > -90.0 && lon < 180.0 && lon > -180.0 && lat != 0.0 && lon != 0.0;
+		}
+
+		public void addPNT(double[] pos, double timestamp) {
+			if (!isValidPosition(pos[1],pos[0]) || timestamp < 1414078500095)
+				return;
+
+			if (History.Count >= 200) {
+				History.Dequeue();
+			}
+
+			History.Enqueue(new PNT(pos,timestamp));
+		}
+
+		public double[] calcDxDy() {
+			
+			float dX = 0;
+			float dY = 0;
+			float dT = 1;
+	
+			try {		
+				if (History.Count >= 2) {
+					PNT[] arr = History.ToArray();
+					
+
+					dT = (float)(arr[arr.Length-1].timestamp - arr[0].timestamp);
+					
+					if (dT > 2000 && dT < 60000) {
+						//translate into 1st quadrant
+						dX = (1000+arr[arr.Length-1].lon - (1000+arr[0].lon));					
+						dY = (1000+arr[arr.Length-1].lat - (1000+arr[0].lat));
+
+						//Debug.Log(arr[0].timestamp);	
+					// 0/1 = 0, no delta x or y
+					} else {
+						dT = 1;
+					}
+
+					
+				}
+			} catch (System.Exception) {
+			}
+
+
+			return new double[] {dX/dT,dY/dT};
+		}
+
+
 		void Start ()
 		{
 				this.gameObject.transform.localScale = new Vector3 (0.10f, .10f, 0.10f);
@@ -120,15 +186,9 @@ public class Ship : Marker
 		{
 				float rotInRad = (float)Cog/10.0f * Mathf.Deg2Rad;
 
-				double dX = 0;
-				double dY = 0;
+				double[] deltaPos = calcDxDy ();
 
-				if (Sog > 0 && Cog > -1 && Sog < 1023) {
-					//not representative of real world
-					dX = Mathf.Sin (rotInRad) * (sog * 0.51 * Map.MetersPerPixel)/Map.RoundedHalfMapScale/20000;
-					dY = Mathf.Cos (rotInRad) * (sog * 0.51 * Map.MetersPerPixel)/Map.RoundedHalfMapScale/20000;
-				}
-				
+
 				if (Map.RoundedMetersPerPixel > 1) {
 						this.gameObject.transform.localScale = new Vector3 (0.4f * Map.HalfMapScale, .4f * Map.HalfMapScale, 0.4f * Map.HalfMapScale);
 
@@ -140,13 +200,14 @@ public class Ship : Marker
 				}
 				
 				transform.localEulerAngles = new Vector3 (0f, (float)Cog/10.0f, 0f);
-
-
-
-				CoordinatesEPSG900913 = new double[] {
-						dX + CoordinatesEPSG900913 [0],
-						dY + CoordinatesEPSG900913 [1]
-				};
+				
+				double newLon = (deltaPos [0]*Time.deltaTime*1000) + CoordinatesWGS84 [0];
+				double newLat = (deltaPos [1]*Time.deltaTime*1000) + CoordinatesWGS84 [1];
+				
+				if (isValidPosition(newLat,newLon)) {
+					CoordinatesWGS84 = new double[] {newLon,newLat};
+				}
+				
 				base.Reposition ();
 		}
 

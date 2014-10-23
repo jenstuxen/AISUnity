@@ -40,7 +40,7 @@ public class Marker : MonoBehaviour
 		get { return coordinatesWGS84; }
 		set
 		{
-			if (value == null)
+			if (value == null || this == null)
 			{
 #if DEBUG_LOG
 				Debug.LogError("ERROR: Marker.CoordinatesWGS84: value cannot be null");

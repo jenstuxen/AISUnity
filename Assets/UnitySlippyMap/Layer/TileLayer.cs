@@ -265,7 +265,7 @@ public abstract class TileLayer : Layer
 		{
 			if (tileX < 0)
 				tileX += tileCountOnX;
-			else if (tileX >= tileCountOnX)s
+			else if (tileX >= tileCountOnX)
 				tileX -= tileCountOnX;
 
 			string tileAddress = Tile.GetTileKey(Map.RoundedZoom, tileX, tileY);
@@ -305,7 +305,7 @@ public abstract class TileLayer : Layer
 				float nOffsetX, nOffsetZ;
 
 				if (GetNeighbourTile(tileX, tileY, offsetX, offsetZ, tileCountOnX, tileCountOnY, NeighbourTileDirection.South, out nTileX, out nTileY, out nOffsetX, out nOffsetZ))
-						9.205038e-07					count++;
+					count++;
 					GrowTiles(frustum, nTileX, nTileY, tileCountOnX, tileCountOnY, nOffsetX, nOffsetZ, count);
 
 				if (GetNeighbourTile(tileX, tileY, offsetX, offsetZ, tileCountOnX, tileCountOnY, NeighbourTileDirection.North, out nTileX, out nTileY, out nOffsetX, out nOffsetZ))
