@@ -111,12 +111,17 @@ public class Ship : Marker
 				get { return DimPort + DimStarboard; }
 		}
 
-		public class PNT {
+		public class PNT : System.IEquatable<PNT> {
 			public PNT(double[] pos, double timestamp) {
 				this.lon = (float)pos[0];
 				this.lat = (float)pos[1];
 				this.timestamp = timestamp;
 			}
+
+			public bool Equals(PNT other) {
+				return ((this.lat == other.lat && this.lon == other.lon) || this.timestamp == other.timestamp);
+			}
+
 			public float lon;
 			public float lat;
 			public double timestamp;
@@ -133,10 +138,10 @@ public class Ship : Marker
 		}
 
 		public void addPNT(double[] pos, double timestamp) {
-			if (!isValidPosition(pos[1],pos[0]) || timestamp < 1414078500095)
+			if (!isValidPosition(pos[1],pos[0]) || timestamp < 1414078500095 || History.Contains (new PNT(pos,timestamp)))
 				return;
 
-			if (History.Count >= 200) {
+			if (History.Count >= 50 || (History.Count >= 2 && (timestamp - History.Peek().timestamp > 120000))) {
 				History.Dequeue();
 			}
 
@@ -156,7 +161,7 @@ public class Ship : Marker
 
 					dT = (float)(arr[arr.Length-1].timestamp - arr[0].timestamp);
 					
-					if (dT > 2000 && dT < 60000) {
+					if (dT > 2000 && dT < 120000) {
 						//translate into 1st quadrant
 						dX = (1000+arr[arr.Length-1].lon - (1000+arr[0].lon));					
 						dY = (1000+arr[arr.Length-1].lat - (1000+arr[0].lat));
