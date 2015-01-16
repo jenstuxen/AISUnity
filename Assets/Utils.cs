@@ -22,6 +22,62 @@ public static class Utils
 
 				return true;
 		}
+
+		public static float CubicInterpolate (
+			float y0, float y1,
+			float y2, float y3,
+			float mu)
+		{
+				float a0, a1, a2, a3, mu2;
+		
+				mu2 = mu * mu;
+				a0 = y3 - y2 - y0 + y1;
+				a1 = y0 - y1 - a0;
+				a2 = y2 - y0;
+				a3 = y1;
+		
+				return(a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3);
+		}
+
+		public static float CosineInterpolate (
+		float y1, float y2,
+		float mu)
+		{
+				float mu2;
+		
+				mu2 = (float)(1 - Math.Cos (mu * Math.PI)) / 2;
+				return(y1 * (1 - mu2) + y2 * mu2);
+		}
+
+		public static float LinearInterpolate (
+		float y1, float y2,
+		float mu)
+		{
+				return(y1 * (1 - mu) + y2 * mu);
+		}
+		
+		public static float cartasianDistance (float lat1, float lon1, float lat2, float lon2)
+		{
+				double R = 6371.0; // km
+				double dLat = DEG2RAD * ((lat2 - lat1)); 
+				double dLon = DEG2RAD * ((lon2 - lon1));
+				
+				double lat1rad = lat1 * DEG2RAD;
+				double lon1rad = lon1 * DEG2RAD;
+				double lat2rad = lat2 * DEG2RAD;
+				double lon2rad = lon2 * DEG2RAD;
+				
+				double a = Math.Sin (dLat / 2.0) * Math.Sin (dLat / 2.0) +
+						Math.Cos (lat1rad) * Math.Cos (lat2rad) * 
+						Math.Sin (dLon / 2.0) * Math.Sin (dLon / 2.0); 
+				double c = 2.0 * Math.Atan2 (Math.Sqrt (a), Math.Sqrt (1.0 - a)); 
+				double d = R * c;
+		
+		
+				return (float)d;
+		}
+		
+		private static double DEG2RAD = Math.PI / 100.0;
 	
 }
 

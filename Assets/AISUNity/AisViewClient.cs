@@ -66,6 +66,38 @@ public class AisViewClient
 				Password = Environment.GetEnvironmentVariable ("AISVIEW_PASSWORD");
 		}
 
+		public IEnumerator<JSONNode> StoreStream (String parameters)
+		{
+				Debug.Log ("Starting Store Stream Request");
+
+				terminateConnections ();
+
+				Uri uri = new Uri (BaseUri, "/store/query" + parameters);
+				WebRequest wb = request (uri);
+				wb.Timeout = 20000;
+				
+				WebResponse wr = wb.GetResponse ();
+				Connections.Add (wr);
+				
+				StreamReader reader = new StreamReader (wr.GetResponseStream ());
+				while (!reader.EndOfStream) {
+						JSONNode json = null;
+					
+						try {
+						
+								json = JSON.Parse (reader.ReadLine ());
+						} catch (Exception e) {
+								Debug.Log ("ERROR IN JSON ARRAY");
+								Debug.Log (e.Message);
+						} 
+						yield return json;
+				}
+				
+				Debug.Log ("/store loop ended");
+				yield return null;
+
+		}
+
 		public IEnumerator<JSONNode> Stream (String parameters)
 		{
 				Debug.Log ("Starting new Web Request");

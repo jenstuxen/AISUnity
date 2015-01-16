@@ -34,252 +34,228 @@ using SimpleJSON;
 
 public class TestMap : MonoBehaviour
 {
-	public Map		map;
+		public Map		map;
 	
-	public Texture	LocationTexture;
-	public Texture	MarkerTexture;
+		public Texture	LocationTexture;
+		public Texture	MarkerTexture;
 	
-	private float	guiXScale;
-	private float	guiYScale;
-	private Rect	guiRect;
+		private float	guiXScale;
+		private float	guiYScale;
+		private Rect	guiRect;
 	
-	private bool 	isPerspectiveView = false;
-	private float	perspectiveAngle = 45.0f;
-	private float	destinationAngle = 0.0f;
-	private float	currentAngle = 0.0f;
-	private float	animationDuration = 0.5f;
-	private float	animationStartTime = 0.0f;
+		private bool 	isPerspectiveView = false;
+		private float	perspectiveAngle = 45.0f;
+		private float	destinationAngle = 0.0f;
+		private float	currentAngle = 0.0f;
+		private float	animationDuration = 0.5f;
+		private float	animationStartTime = 0.0f;
 
-    private List<Layer> layers;
-    private int     currentLayerIndex = 0;
+		private List<Layer> layers;
+		private int     currentLayerIndex = 0;
 	
-	bool Toolbar(Map map)
-	{
-		GUI.matrix = Matrix4x4.Scale(new Vector3(guiXScale, guiXScale, 1.0f));
-		
-		GUILayout.BeginArea(guiRect);
-		
-		GUILayout.BeginHorizontal();
-		
-		//GUILayout.Label("Zoom: " + map.CurrentZoom);
-		
-		bool pressed = false;
-        if (GUILayout.RepeatButton("+", GUILayout.ExpandHeight(true)))
+		bool Toolbar (Map map)
 		{
-			map.Zoom(1.0f);
-			pressed = true;
-		}
-        if (Event.current.type == EventType.Repaint)
-        {
-            Rect rect = GUILayoutUtility.GetLastRect();
-            if (rect.Contains(Event.current.mousePosition))
-                pressed = true;
-        }
+				GUI.matrix = Matrix4x4.Scale (new Vector3 (guiXScale, guiXScale, 1.0f));
+		
+				GUILayout.BeginArea (guiRect);
+		
+				GUILayout.BeginHorizontal ();
+		
+				//GUILayout.Label("Zoom: " + map.CurrentZoom);
+		
+				bool pressed = false;
+				if (GUILayout.RepeatButton ("+", GUILayout.ExpandHeight (true))) {
+						map.Zoom (1.0f);
+						pressed = true;
+				}
+				if (Event.current.type == EventType.Repaint) {
+						Rect rect = GUILayoutUtility.GetLastRect ();
+						if (rect.Contains (Event.current.mousePosition))
+								pressed = true;
+				}
 
-        if (GUILayout.Button("2D/3D", GUILayout.ExpandHeight(true)))
-		{
-			if (isPerspectiveView)
-			{
-				destinationAngle = -perspectiveAngle;
-			}
-			else
-			{
-				destinationAngle = perspectiveAngle;
-			}
+				if (GUILayout.Button ("2D/3D", GUILayout.ExpandHeight (true))) {
+						if (isPerspectiveView) {
+								destinationAngle = -perspectiveAngle;
+						} else {
+								destinationAngle = perspectiveAngle;
+						}
 			
-			animationStartTime = Time.time;
+						animationStartTime = Time.time;
 			
-			isPerspectiveView = !isPerspectiveView;
-		}
-        if (Event.current.type == EventType.Repaint)
-        {
-            Rect rect = GUILayoutUtility.GetLastRect();
-            if (rect.Contains(Event.current.mousePosition))
-                pressed = true;
-        }
+						isPerspectiveView = !isPerspectiveView;
+				}
+				if (Event.current.type == EventType.Repaint) {
+						Rect rect = GUILayoutUtility.GetLastRect ();
+						if (rect.Contains (Event.current.mousePosition))
+								pressed = true;
+				}
 
-        if (GUILayout.Button("Center", GUILayout.ExpandHeight(true)))
-        {
-            map.CenterOnLocation();
-        }
-        if (Event.current.type == EventType.Repaint)
-        {
-            Rect rect = GUILayoutUtility.GetLastRect();
-            if (rect.Contains(Event.current.mousePosition))
-                pressed = true;
-        }
+				if (GUILayout.Button ("Center", GUILayout.ExpandHeight (true))) {
+						map.CenterOnLocation ();
+				}
+				if (Event.current.type == EventType.Repaint) {
+						Rect rect = GUILayoutUtility.GetLastRect ();
+						if (rect.Contains (Event.current.mousePosition))
+								pressed = true;
+				}
 
-        string layerMessage = String.Empty;
-        if (map.CurrentZoom > layers[currentLayerIndex].MaxZoom)
-            layerMessage = "\nZoom out!";
-        else if (map.CurrentZoom < layers[currentLayerIndex].MinZoom)
-            layerMessage = "\nZoom in!";
-        if (GUILayout.Button(((layers != null && currentLayerIndex < layers.Count) ? layers[currentLayerIndex].name + layerMessage : "Layer"), GUILayout.ExpandHeight(true)))
-        {
+				string layerMessage = String.Empty;
+				if (map.CurrentZoom > layers [currentLayerIndex].MaxZoom)
+						layerMessage = "\nZoom out!";
+				else if (map.CurrentZoom < layers [currentLayerIndex].MinZoom)
+						layerMessage = "\nZoom in!";
+				if (GUILayout.Button (((layers != null && currentLayerIndex < layers.Count) ? layers [currentLayerIndex].name + layerMessage : "Layer"), GUILayout.ExpandHeight (true))) {
 #if UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_3_6 || UNITY_3_7 || UNITY_3_8 || UNITY_3_9
             layers[currentLayerIndex].gameObject.SetActiveRecursively(false);
 #else
-			layers[currentLayerIndex].gameObject.SetActive(false);
+						layers [currentLayerIndex].gameObject.SetActive (false);
 #endif
-            ++currentLayerIndex;
-            if (currentLayerIndex >= layers.Count)
-                currentLayerIndex = 0;
+						++currentLayerIndex;
+						if (currentLayerIndex >= layers.Count)
+								currentLayerIndex = 0;
 #if UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_3_6 || UNITY_3_7 || UNITY_3_8 || UNITY_3_9
             layers[currentLayerIndex].gameObject.SetActiveRecursively(true);
 #else
-			layers[currentLayerIndex].gameObject.SetActive(true);
+						layers [currentLayerIndex].gameObject.SetActive (true);
 #endif
-            map.IsDirty = true;
-        }
+						map.IsDirty = true;
+				}
 
-        if (GUILayout.RepeatButton("-", GUILayout.ExpandHeight(true)))
-		{
-			map.Zoom(-1.0f);
-			pressed = true;
-		}
-        if (Event.current.type == EventType.Repaint)
-        {
-            Rect rect = GUILayoutUtility.GetLastRect();
-            if (rect.Contains(Event.current.mousePosition))
-                pressed = true;
-        }
+				if (GUILayout.RepeatButton ("-", GUILayout.ExpandHeight (true))) {
+						map.Zoom (-1.0f);
+						pressed = true;
+				}
+				if (Event.current.type == EventType.Repaint) {
+						Rect rect = GUILayoutUtility.GetLastRect ();
+						if (rect.Contains (Event.current.mousePosition))
+								pressed = true;
+				}
 		
-		GUILayout.EndHorizontal();
+				GUILayout.EndHorizontal ();
 					
-		GUILayout.EndArea();
+				GUILayout.EndArea ();
 		
-		return pressed;
-	}
+				return pressed;
+		}
 	
-	private
+		private
 #if !UNITY_WEBPLAYER
         IEnumerator
 #else
         void
 #endif
-        Start()
-	{
-        // setup the gui scale according to the screen resolution
-        guiXScale = (Screen.orientation == ScreenOrientation.Landscape ? Screen.width : Screen.height) / 720.0f;
-        guiYScale = (Screen.orientation == ScreenOrientation.Landscape ? Screen.height : Screen.width) / 1280.0f;
-		// setup the gui area
-		guiRect = new Rect(16.0f * guiXScale, 4.0f * guiXScale, Screen.width / guiXScale - 32.0f * guiXScale, 32.0f * guiYScale);
+        Start ()
+		{
+				// setup the gui scale according to the screen resolution
+				guiXScale = (Screen.orientation == ScreenOrientation.Landscape ? Screen.width : Screen.height) / 720.0f;
+				guiYScale = (Screen.orientation == ScreenOrientation.Landscape ? Screen.height : Screen.width) / 1280.0f;
+				// setup the gui area
+				guiRect = new Rect (16.0f * guiXScale, 4.0f * guiXScale, Screen.width / guiXScale - 32.0f * guiXScale, 32.0f * guiYScale);
 
-		// create the map singleton
-		map = Map.Instance;
-		map.CurrentCamera = Camera.main;
-		map.InputDelegate += UnitySlippyMap.Input.MapInput.BasicTouchAndKeyboard;
-		map.CurrentZoom = 12.0f;
-		// 9 rue Gentil, Lyon
-		map.CenterWGS84 = new double[2] { 12.62, 55.65 };
-		map.UseLocation = true;
-		map.InputsEnabled = true;
-		map.ShowGUIControls = true;
+				// create the map singleton
+				map = Map.Instance;
+				map.CurrentCamera = Camera.main;
+				map.InputDelegate += UnitySlippyMap.Input.MapInput.BasicTouchAndKeyboard;
+				map.CurrentZoom = 12.0f;
+				// 9 rue Gentil, Lyon
+				map.CenterWGS84 = new double[2] { 12.654, 56.036 }; // Helsingoer-Helsingborg
+				map.UseLocation = true;
+				map.InputsEnabled = true;
+				map.ShowGUIControls = true;
 
-		map.GUIDelegate += Toolbar;
+				map.GUIDelegate += Toolbar;
 
-        layers = new List<Layer>();
+				layers = new List<Layer> ();
 
-		// create an OSM tile layer
-        OSMTileLayer osmLayer = map.CreateLayer<OSMTileLayer>("OSM");
-        osmLayer.BaseURL = "http://a.tile.openstreetmap.org/";
+				// create an OSM tile layer
+				OSMTileLayer osmLayer = map.CreateLayer<OSMTileLayer> ("OSM");
+				osmLayer.BaseURL = "http://a.tile.openstreetmap.org/";
 
-		osmLayer.gameObject.SetActive(false);
+				osmLayer.gameObject.SetActive (false);
 		
-        //layers.Add(osmLayer);
+				//layers.Add(osmLayer);
 
-		// create a WMS tile layer
-        WMSTileLayer wmsLayer = map.CreateLayer<WMSTileLayer>("WMS");
-        //wmsLayer.BaseURL = "http://129.206.228.72/cached/osm?"; // http://www.osm-wms.de : seems to be of very limited use
-        //wmsLayer.Layers = "osm_auto:all";
-        wmsLayer.BaseURL = "http://vmap0.tiles.osgeo.org/wms/vmap0";
-        wmsLayer.Layers = "basic";
+				// create a WMS tile layer
+				WMSTileLayer wmsLayer = map.CreateLayer<WMSTileLayer> ("WMS");
+				//wmsLayer.BaseURL = "http://129.206.228.72/cached/osm?"; // http://www.osm-wms.de : seems to be of very limited use
+				//wmsLayer.Layers = "osm_auto:all";
+				wmsLayer.BaseURL = "http://vmap0.tiles.osgeo.org/wms/vmap0";
+				wmsLayer.Layers = "basic";
 #if UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_3_6 || UNITY_3_7 || UNITY_3_8 || UNITY_3_9
         wmsLayer.gameObject.SetActiveRecursively(false);
 #else
-		wmsLayer.gameObject.SetActive(false);
+				wmsLayer.gameObject.SetActive (false);
 #endif
 
-        //layers.Add(wmsLayer);
+				//layers.Add(wmsLayer);
 
-		// create a VirtualEarth tile layer
-        VirtualEarthTileLayer virtualEarthLayer = map.CreateLayer<VirtualEarthTileLayer>("VirtualEarth");
-        // Note: this is the key UnitySlippyMap, DO NOT use it for any other purpose than testing
-        virtualEarthLayer.Key = "ArgkafZs0o_PGBuyg468RaapkeIQce996gkyCe8JN30MjY92zC_2hcgBU_rHVUwT";
+				// create a VirtualEarth tile layer
+				VirtualEarthTileLayer virtualEarthLayer = map.CreateLayer<VirtualEarthTileLayer> ("VirtualEarth");
+				// Note: this is the key UnitySlippyMap, DO NOT use it for any other purpose than testing
+				virtualEarthLayer.Key = "ArgkafZs0o_PGBuyg468RaapkeIQce996gkyCe8JN30MjY92zC_2hcgBU_rHVUwT";
 #if UNITY_WEBPLAYER
         virtualEarthLayer.ProxyURL = "http://reallyreallyreal.com/UnitySlippyMap/demo/veproxy.php";
 #endif
 #if UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_3_6 || UNITY_3_7 || UNITY_3_8 || UNITY_3_9
         virtualEarthLayer.gameObject.SetActiveRecursively(false);
 #else
-		virtualEarthLayer.gameObject.SetActive(true);
+				virtualEarthLayer.gameObject.SetActive (true);
 #endif
 
-        layers.Add(virtualEarthLayer);
+				layers.Add (virtualEarthLayer);
 
 #if !UNITY_WEBPLAYER // FIXME: SQLite won't work in webplayer except if I find a full .NET 2.0 implementation (for free)
-		// create an MBTiles tile layer
-		bool error = false;
-		// on iOS, you need to add the db file to the Xcode project using a directory reference
-		string mbTilesDir = "MBTiles/";
-		string filename = "UnitySlippyMap_World_0_8.mbtiles";
-		string filepath = null;
-		if (Application.platform == RuntimePlatform.IPhonePlayer)
-		{
-			filepath = Application.streamingAssetsPath + "/" + mbTilesDir + filename;
-		}
-		else if (Application.platform == RuntimePlatform.Android)
-		{
-			// Note: Android is a bit tricky, Unity produces APK files and those are never unzip on the device.
-			// Place your MBTiles file in the StreamingAssets folder (http://docs.unity3d.com/Documentation/Manual/StreamingAssets.html).
-			// Then you need to access the APK on the device with WWW and copy the file to persitentDataPath
-			// to that it can be read by SqliteDatabase as an individual file
-			string newfilepath = Application.temporaryCachePath + "/" + filename;
-			if (File.Exists(newfilepath) == false)
-			{
-				Debug.Log("DEBUG: file doesn't exist: " + newfilepath);
-				filepath = Application.streamingAssetsPath + "/" + mbTilesDir + filename;
-				// TODO: read the file with WWW and write it to persitentDataPath
-				WWW loader = new WWW(filepath);
-				yield return loader;
-				if (loader.error != null)
-				{
-					Debug.LogError("ERROR: " + loader.error);
-					error = true;
+				// create an MBTiles tile layer
+				bool error = false;
+				// on iOS, you need to add the db file to the Xcode project using a directory reference
+				string mbTilesDir = "MBTiles/";
+				string filename = "UnitySlippyMap_World_0_8.mbtiles";
+				string filepath = null;
+				if (Application.platform == RuntimePlatform.IPhonePlayer) {
+						filepath = Application.streamingAssetsPath + "/" + mbTilesDir + filename;
+				} else if (Application.platform == RuntimePlatform.Android) {
+						// Note: Android is a bit tricky, Unity produces APK files and those are never unzip on the device.
+						// Place your MBTiles file in the StreamingAssets folder (http://docs.unity3d.com/Documentation/Manual/StreamingAssets.html).
+						// Then you need to access the APK on the device with WWW and copy the file to persitentDataPath
+						// to that it can be read by SqliteDatabase as an individual file
+						string newfilepath = Application.temporaryCachePath + "/" + filename;
+						if (File.Exists (newfilepath) == false) {
+								Debug.Log ("DEBUG: file doesn't exist: " + newfilepath);
+								filepath = Application.streamingAssetsPath + "/" + mbTilesDir + filename;
+								// TODO: read the file with WWW and write it to persitentDataPath
+								WWW loader = new WWW (filepath);
+								yield return loader;
+								if (loader.error != null) {
+										Debug.LogError ("ERROR: " + loader.error);
+										error = true;
+								} else {
+										Debug.Log ("DEBUG: will write: '" + filepath + "' to: '" + newfilepath + "'");
+										File.WriteAllBytes (newfilepath, loader.bytes);
+								}
+						} else
+								Debug.Log ("DEBUG: exists: " + newfilepath);
+						filepath = newfilepath;
+				} else {
+						filepath = Application.streamingAssetsPath + "/" + mbTilesDir + filename;
 				}
-				else
-				{
-					Debug.Log("DEBUG: will write: '" + filepath + "' to: '" + newfilepath + "'");
-					File.WriteAllBytes(newfilepath, loader.bytes);
-				}
-			}
-			else
-				Debug.Log("DEBUG: exists: " + newfilepath);
-			filepath = newfilepath;
-		}
-        else
-		{
-			filepath = Application.streamingAssetsPath + "/" + mbTilesDir + filename;
-		}
 		
-		if (error == false)
-		{
-            Debug.Log("DEBUG: using MBTiles file: " + filepath);
-			MBTilesLayer mbTilesLayer = map.CreateLayer<MBTilesLayer>("MBTiles");
-			mbTilesLayer.Filepath = filepath;
+				if (error == false) {
+						Debug.Log ("DEBUG: using MBTiles file: " + filepath);
+						MBTilesLayer mbTilesLayer = map.CreateLayer<MBTilesLayer> ("MBTiles");
+						mbTilesLayer.Filepath = filepath;
 #if UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_3_6 || UNITY_3_7 || UNITY_3_8 || UNITY_3_9
             mbTilesLayer.gameObject.SetActiveRecursively(false);
 #else
-			mbTilesLayer.gameObject.SetActive(false);
+						mbTilesLayer.gameObject.SetActive (false);
 #endif
 
-            //layers.Add(mbTilesLayer);
-		}
-        else
-            Debug.LogError("ERROR: MBTiles file not found!");
+						//layers.Add(mbTilesLayer);
+				} else
+						Debug.LogError ("ERROR: MBTiles file not found!");
 
 #endif
-		/*
+				/*
         // create some test 2D markers
 		GameObject go = Tile.CreateTileTemplate(Tile.AnchorPoint.BottomCenter).gameObject;
 		go.renderer.material.mainTexture = MarkerTexture;
@@ -322,35 +298,31 @@ public class TestMap : MonoBehaviour
 		DestroyImmediate(go);
 		*/
 
-	}
-	
-	void OnApplicationQuit()
-	{
-		map = null;
-	}
-	
-	void Update()
-	{
-		if (destinationAngle != 0.0f)
-		{
-			Vector3 cameraLeft = Quaternion.AngleAxis(-90.0f, Camera.main.transform.up) * Camera.main.transform.forward;
-			if ((Time.time - animationStartTime) < animationDuration)
-			{
-				float angle = Mathf.LerpAngle(0.0f, destinationAngle, (Time.time - animationStartTime) / animationDuration);
-				Camera.main.transform.RotateAround(Vector3.zero, cameraLeft, angle - currentAngle);
-				currentAngle = angle;
-			}
-			else
-			{
-				Camera.main.transform.RotateAround(Vector3.zero, cameraLeft, destinationAngle - currentAngle);
-				destinationAngle = 0.0f;
-				currentAngle = 0.0f;
-				map.IsDirty = true;
-			}
-			
-			map.HasMoved = true;
 		}
-	}
+	
+		void OnApplicationQuit ()
+		{
+				map = null;
+		}
+	
+		void Update ()
+		{
+				if (destinationAngle != 0.0f) {
+						Vector3 cameraLeft = Quaternion.AngleAxis (-90.0f, Camera.main.transform.up) * Camera.main.transform.forward;
+						if ((Time.time - animationStartTime) < animationDuration) {
+								float angle = Mathf.LerpAngle (0.0f, destinationAngle, (Time.time - animationStartTime) / animationDuration);
+								Camera.main.transform.RotateAround (Vector3.zero, cameraLeft, angle - currentAngle);
+								currentAngle = angle;
+						} else {
+								Camera.main.transform.RotateAround (Vector3.zero, cameraLeft, destinationAngle - currentAngle);
+								destinationAngle = 0.0f;
+								currentAngle = 0.0f;
+								map.IsDirty = true;
+						}
+			
+						map.HasMoved = true;
+				}
+		}
 	
 #if DEBUG_PROFILE
 	void LateUpdate()
